@@ -1,15 +1,19 @@
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
+import { connectDB } from "./config/connectToDB.js";
 import { Server } from "socket.io";
 import groqRoutes from "./routes/groq.js";
 import responsesRoutes from "./routes/responses.js"; // Import the responses routes
 import rateLimit from "express-rate-limit";
+// Initialize Express app
+const app = express();
+const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
 
 dotenv.config();
-
+connectDB();
 // Validate required environment variables
 const requiredEnvVars = [
   "MONGO_URI",
@@ -17,16 +21,13 @@ const requiredEnvVars = [
   "PORT",
   "ALLOWED_ORIGINS",
 ];
+
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);
     process.exit(1);
   }
 }
-
-// Initialize Express app
-const app = express();
-const server = http.createServer(app);
 
 // Configure CORS with allowed origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
@@ -45,15 +46,15 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "1mb" }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
-app.use("/api/", limiter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -65,28 +66,6 @@ app.use((err, req, res, next) => {
         : err.message,
   });
 });
-
-// MongoDB connection with retry logic
-const connectDB = async (retries = 5, delay = 5000) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      await mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-      console.log("Connected to MongoDB");
-      return;
-    } catch (err) {
-      if (i === retries - 1) {
-        console.error("Failed to connect to MongoDB:", err);
-        process.exit(1);
-      }
-      console.log(`Retrying MongoDB connection in ${delay / 1000} seconds...`);
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-  }
-};
-connectDB();
 
 // Socket.IO connection handling
 const connectedClients = new Set();
@@ -106,14 +85,14 @@ io.on("connection", (socket) => {
 });
 
 // Routes
+app.use("/api/", limiter);
 app.use("/api/groq", groqRoutes);
 app.use("/api/responses", responsesRoutes); // Use the responses routes
 
 // Start server
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(
-    `Server running on port ${PORT} in ${
+    `Server running on port http://localhost:${PORT} in ${
       process.env.NODE_ENV || "development"
     } mode`
   );
