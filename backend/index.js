@@ -5,16 +5,16 @@ import http from "http";
 import { connectDB } from "./config/connectToDB.js";
 import { Server } from "socket.io";
 import groqRoutes from "./routes/groq.js";
-import responsesRoutes from "./routes/responses.js"; // Import the responses routes
+import responsesRoutes from "./routes/responses.js";
 import rateLimit from "express-rate-limit";
-// Initialize Express app
+
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 dotenv.config();
 connectDB();
-// Validate required environment variables
+
 const requiredEnvVars = [
   "MONGO_URI",
   "GROQ_API_KEY",
@@ -29,7 +29,6 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
-// Configure CORS with allowed origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 const io = new Server(server, {
   cors: {
@@ -39,7 +38,6 @@ const io = new Server(server, {
   },
 });
 
-// Middleware
 app.use(
   cors({
     origin: allowedOrigins,
@@ -49,14 +47,12 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -84,12 +80,10 @@ io.on("connection", (socket) => {
   });
 });
 
-// Routes
 app.use("/api/", limiter);
 app.use("/api/groq", groqRoutes);
-app.use("/api/responses", responsesRoutes); // Use the responses routes
+app.use("/api/responses", responsesRoutes);
 
-// Start server
 server.listen(PORT, () => {
   console.log(
     `Server running on port http://localhost:${PORT} in ${
