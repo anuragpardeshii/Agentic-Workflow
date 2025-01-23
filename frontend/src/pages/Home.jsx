@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput } from "flowbite-react";
 import { Wand2, Sparkles } from "lucide-react";
-import axios from "axios";
+import { generateResponse } from "../services/api";
 
 function Home() {
   const [prompt, setPrompt] = useState("");
@@ -18,24 +18,25 @@ function Home() {
   ];
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!prompt.trim()) {
+      alert("Please enter a prompt.");
+      return;
+    }
     try {
-      e.preventDefault();
-      const response = await axios.post(
-        "http://localhost:3000/api/groq/generate",
-        { prompt }
-      );
-      let cleanedData = response.data.content
+      const response = await generateResponse(prompt);
+      let cleanedData = response
         .replace(/json|/g, "")
         .trim()
         .replace(/[\u200B-\u200D\uFEFF]/g, "");
 
-      cleanedData = cleanedData.split("```");
-      cleanedData.forEach((data) => console.log(data));
+      let cleanedDataArr = cleanedData.split("```");
 
-      // Parse the cleaned JSON string
-      setGetResponse(cleanedData);
+      setGetResponse(cleanedDataArr);
     } catch (error) {
-      console.log(error);
+      console.error("Error generating response:", error.message);
+      alert("Failed to generate response. Please try again.");
     }
   };
 

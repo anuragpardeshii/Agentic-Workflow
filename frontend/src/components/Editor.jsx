@@ -9,26 +9,39 @@ import {
   SandpackPreview,
 } from "@codesandbox/sandpack-react";
 
-export default function InteractiveEditor({ getResponse, obj }) {
+export default function InteractiveEditor({ objForm }) {
   const [files, setFiles] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log(obj.generatedFiles.length);
+  const generateFile = objForm.generatedFiles;
+  const file = objForm.files;
+
+  console.log(generateFile);
+  console.log(file);
+
+  const keyFile = Object.keys(file);
+  const valueFile = Object.values(file);
 
   useEffect(() => {
     const fetchFileStructure = async () => {
       try {
         const response = {
           data: {
-            generatedFiles: {},
+            generatedFiles: keyFile.reduce(
+              (acc, key, index) => ({
+                ...acc,
+                [key]: valueFile[index],
+              }),
+              {}
+            ),
           },
         };
 
         // In a real app, replace the hardcoded response with an API call
         // const response = await axios.get("YOUR_BACKEND_ENDPOINT");
 
-        setFiles(response.data.generatedFiles());
+        setFiles(response.data.generatedFiles);
       } catch (err) {
         setError("Failed to load files.");
       } finally {

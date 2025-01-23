@@ -8,7 +8,6 @@ const Builder = () => {
   const [input, setInput] = useState("");
 
   const location = useLocation();
-  console.log(location.state);
 
   const getResponse = location.state;
 
@@ -17,8 +16,7 @@ const Builder = () => {
     .trim()
     .replace(/[\u200B-\u200D\uFEFF]/g, "");
 
-  const obj = JSON.parse(builderData);
-  console.log(obj);
+  const objForm = JSON.parse(builderData);
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
@@ -32,7 +30,10 @@ const Builder = () => {
             Instructions
           </h2>
           <div className="space-y-3">
-            <p className="text-sm text-gray-300">{obj.projectTitle}</p>
+            <p className="text-sm text-gray-300">{objForm.projectTitle}</p>
+            {objForm.explanation?.split(".").map((line) => (
+              <p className="text-sm">{line}</p>
+            ))}
           </div>
         </div>
       </div>
@@ -42,7 +43,7 @@ const Builder = () => {
         {/* Editor Area */}
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
-            <Editor getResponse={getResponse} obj={obj} />
+            <Editor objForm={objForm} />
           </div>
         </div>
 
