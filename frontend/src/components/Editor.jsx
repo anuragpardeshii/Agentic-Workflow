@@ -14,10 +14,8 @@ export default function InteractiveEditor({ objForm }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const generateFile = objForm.generatedFiles;
   const file = objForm.files;
 
-  console.log(generateFile);
   console.log(file);
 
   const keyFile = Object.keys(file);
