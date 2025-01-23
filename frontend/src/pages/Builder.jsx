@@ -35,16 +35,6 @@ const Builder = () => {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Editor Area */}
-        <div className="flex-1 h-full bg-gray-950 overflow-hidden">
-          <div className="h-full">
-            <Editor />
-          </div>
-        </div>
 
         {/* Command Input */}
         <div className="p-4 bg-gray-900 border-t border-gray-800">
@@ -57,6 +47,16 @@ const Builder = () => {
               placeholder="Type a command or search..."
               className="flex-1 bg-transparent border-none focus:outline-none text-gray-300 placeholder-gray-600"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Editor Area */}
+        <div className="flex-1 h-full bg-gray-950 overflow-hidden">
+          <div className="h-full">
+            <Editor />
           </div>
         </div>
       </div>
