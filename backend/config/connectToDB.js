@@ -1,4 +1,3 @@
-// MongoDB connection with retry logic
 import mongoose from "mongoose";
 
 export const connectDB = async (retries = 5, delay = 5000) => {

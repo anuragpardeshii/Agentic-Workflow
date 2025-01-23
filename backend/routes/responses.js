@@ -1,9 +1,8 @@
 import express from "express";
-import Response from "../models/Response.js"; // Import the Response model
+import Response from "../models/Response.js";
 
 const router = express.Router();
 
-// Get all responses
 router.get("/", async (req, res) => {
   try {
     const responses = await Response.find();
@@ -14,7 +13,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get a single response by ID
 router.get("/:id", async (req, res) => {
   try {
     const response = await Response.findById(req.params.id);
