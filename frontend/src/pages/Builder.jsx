@@ -2,19 +2,23 @@ import React, { useState, useEffect } from "react";
 // import Editor from "@monaco-editor/react";
 import { Play } from "lucide-react";
 import Editor from "../components/Editor";
+import { useLocation } from "react-router-dom";
 
 const Builder = () => {
   const [input, setInput] = useState("");
 
-  const instructions = [
-    "1. Initialize your project by selecting a template",
-    "2. Choose your preferred framework and styling solution",
-    "3. Create components in the src/components directory",
-    "4. Modify App.tsx to include your components",
-    "5. Style your application using the provided CSS utilities",
-    "6. Preview your changes in real-time",
-    "7. Use the terminal for package management and builds",
-  ];
+  const location = useLocation();
+  console.log(location.state);
+
+  const getResponse = location.state;
+
+  let builderData = getResponse[1]
+    .replace(/json|/g, "")
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, "");
+
+  const obj = JSON.parse(builderData);
+  console.log(obj);
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
@@ -28,11 +32,7 @@ const Builder = () => {
             Instructions
           </h2>
           <div className="space-y-3">
-            {instructions.map((instruction, index) => (
-              <p key={index} className="text-sm text-gray-300">
-                {instruction}
-              </p>
-            ))}
+            <p className="text-sm text-gray-300">{obj.projectTitle}</p>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@ const Builder = () => {
         {/* Editor Area */}
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
-            <Editor />
+            <Editor getResponse={getResponse} obj={obj} />
           </div>
         </div>
 

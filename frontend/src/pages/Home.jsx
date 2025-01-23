@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput } from "flowbite-react";
 import { Wand2, Sparkles } from "lucide-react";
+import axios from "axios";
 
 function Home() {
   const [prompt, setPrompt] = useState("");
+  const [getResponse, setGetResponse] = useState(null);
   const navigate = useNavigate();
 
   const examplePrompts = [
@@ -15,12 +17,33 @@ function Home() {
     "Create a portfolio website",
   ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (prompt.trim()) {
-      navigate("/builder", { state: { prompt } });
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const response = await axios.post(
+        "http://localhost:3000/api/groq/generate",
+        { prompt }
+      );
+      let cleanedData = response.data.content
+        .replace(/json|/g, "")
+        .trim()
+        .replace(/[\u200B-\u200D\uFEFF]/g, "");
+
+      cleanedData = cleanedData.split("```");
+      cleanedData.forEach((data) => console.log(data));
+
+      // Parse the cleaned JSON string
+      setGetResponse(cleanedData);
+    } catch (error) {
+      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (getResponse !== null) {
+      navigate("/builder", { state: getResponse });
+    }
+  }, [getResponse, navigate]);
 
   const handleExampleClick = (example) => {
     setPrompt(example);
