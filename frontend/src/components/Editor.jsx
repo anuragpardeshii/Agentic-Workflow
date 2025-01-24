@@ -1,89 +1,145 @@
-import React, { useEffect, useState } from "react";
-import { dracula } from "@codesandbox/sandpack-themes";
+import React, { useEffect } from "react";
+import StackBlitzSDK from "@stackblitz/sdk";
 
-import {
-  SandpackProvider,
-  SandpackLayout,
-  SandpackCodeEditor,
-  SandpackFileExplorer,
-  SandpackPreview,
-} from "@codesandbox/sandpack-react";
-
-export default function InteractiveEditor({ objForm }) {
-  const [files, setFiles] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const file = objForm.files;
-
-  console.log(file);
-
-  const keyFile = Object.keys(file);
-  const valueFile = Object.values(file);
-
+const Editor = () => {
   useEffect(() => {
-    const fetchFileStructure = async () => {
-      try {
-        const response = {
-          data: {
-            generatedFiles: keyFile.reduce(
-              (acc, key, index) => ({
-                ...acc,
-                [key]: valueFile[index],
-              }),
-              {}
-            ),
-          },
-        };
+    StackBlitzSDK.embedProject(
+      "stackblitz-container",
+      {
+        files: {
+          "src/App.js": `import React, { useState } from "react"; 
+import TodoList from "../components/TodoList.js"; 
+import AddTodo from "../components/AddTodo.js"; 
 
-        // In a real app, replace the hardcoded response with an API call
-        // const response = await axios.get("YOUR_BACKEND_ENDPOINT");
+export default function App() { 
+const [todos, setTodos] = useState([]); 
 
-        setFiles(response.data.generatedFiles);
-      } catch (err) {
-        setError("Failed to load files.");
-      } finally {
-        setLoading(false);
+const addTodo = (todo) => { 
+setTodos([...todos, todo]); 
+}; 
+
+const removeTodo = (index) => {
+const updatedTodos = todos.filter((_, i) => i !== index);
+setTodos(updatedTodos);
+};
+
+return ( 
+<div className="p-10 bg-gray-100 min-h-screen"> 
+  <h1 className="text-2xl font-bold text-blue-600 mb-4">Todo App</h1> 
+  <AddTodo addTodo={addTodo} /> 
+  <TodoList todos={todos} removeTodo={removeTodo} /> 
+</div> 
+); 
+}`,
+
+          "components/TodoList.js": `import React from "react"; 
+import TodoItem from "./TodoItem"; 
+
+export default function TodoList({ todos, removeTodo }) { 
+return ( 
+<div className="mt-4"> 
+  {todos.map((todo, index) => ( 
+    <TodoItem key={index} todo={todo} index={index} removeTodo={removeTodo} /> 
+  ))} 
+</div> 
+); 
+}`,
+
+          "components/TodoItem.js": `import React from "react"; 
+
+export default function TodoItem({ todo, index, removeTodo }) { 
+return ( 
+<div className="flex justify-between items-center p-2 bg-white shadow-md rounded mb-2"> 
+  <span>{todo}</span> 
+  <button 
+    onClick={() => removeTodo(index)} 
+    className="text-red-500 hover:text-red-700" 
+  > 
+    Delete 
+  </button> 
+</div> 
+); 
+}`,
+
+          "components/AddTodo.js": `import React, { useState } from "react"; 
+
+export default function AddTodo({ addTodo }) { 
+const [newTodo, setNewTodo] = useState(""); 
+
+const handleAddClick = () => { 
+if (newTodo) { 
+  addTodo(newTodo); 
+  setNewTodo(""); 
+} 
+}; 
+
+return ( 
+<div className="flex gap-2"> 
+  <input 
+    type="text" 
+    value={newTodo} 
+    onChange={(e) => setNewTodo(e.target.value)} 
+    placeholder="Add a new todo" 
+    className="p-2 border rounded flex-1" 
+  /> 
+  <button 
+    onClick={handleAddClick} 
+    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600" 
+  > 
+    Add 
+  </button> 
+</div> 
+); 
+}`,
+          "public/index.html": `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Editor</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div id="root"></div>
+  <script type="module" src="src/index.js"></script>
+</body>
+</html>`,
+          "src/index.js": `
+import React from "react";
+import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+
+
+createRoot(document.getElementById("root")).render(
+      <App />
+);
+
+`,
+        },
+
+        template: "create-react-app",
+        title: "My Project",
+      },
+      {
+        height: "100%",
       }
-    };
-
-    fetchFileStructure();
+    );
   }, []);
 
-  if (loading) return <h1>Loading...</h1>;
-  if (error) return <h1>{error}</h1>;
-
   return (
-    <SandpackProvider
-      template="react"
-      theme={dracula}
-      customSetup={{
-        dependencies: {
-          react: "latest",
-          "react-dom": "latest",
-          axios: "latest",
-          "lucide-react": "latest",
-          tailwindcss: "latest",
-          "@codesandbox/sandpack-react": "latest",
-        },
+    <div
+      style={{
+        height: "100vh",
       }}
-      files={files}
     >
-      <SandpackLayout
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "100vh",
-          overflow: "auto",
-          margin: "20px",
-        }}
-      >
-        <SandpackFileExplorer
-          style={{ height: "100vh", overflowY: "scroll" }}
-        />
-        <SandpackCodeEditor closableTabs style={{ height: "100vh" }} />
-        <SandpackPreview style={{ height: "100vh" }} theme={"dark"} />
-      </SandpackLayout>
-    </SandpackProvider>
+      <div
+        id="stackblitz-container"
+        style={{ height: "600px", width: "100%" }}
+      ></div>
+    </div>
   );
-}
+};
+
+export default Editor;
