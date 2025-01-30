@@ -3,26 +3,28 @@ import React, { useState, useEffect } from "react";
 import { Play } from "lucide-react";
 import Editor from "../components/Editor";
 import { useLocation } from "react-router-dom";
+import { getResponseById } from "../services/response";
 
 const Builder = () => {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const location = useLocation();
 
   const getResponse = location.state;
 
-  let builderData = getResponse[1]
-    .replace(/json|/g, "")
-    .trim()
-    .replace(/[\u200B-\u200D\uFEFF]/g, "");
+  const objFormString = JSON.stringify(getResponse[1].split("```"));
+  const objForm = JSON.parse(objFormString);
 
-  const objForm = JSON.parse(builderData);
+  const obj = JSON.parse(objForm[0]);
+
+  useEffect(() => {}, []);
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
-      {/* Instructions Panel */}
       <div
-        style={{ width: "auto" }}
+        style={{ width: "34%" }}
         className="bg-gray-900 border-r border-gray-800 flex flex-col relative"
       >
         <div className="p-4 flex-1 overflow-y-auto">
@@ -30,9 +32,15 @@ const Builder = () => {
             Instructions
           </h2>
           <div className="space-y-3">
-            <p className="text-sm text-gray-300">{objForm.projectTitle}</p>
-            {objForm.explanation?.split(".").map((line) => (
-              <p className="text-sm">{line}</p>
+            <p className="text-sm text-gray-300">{obj.projectTitle}</p>
+            {objForm.slice(1).map((line) => (
+              <>
+                {line.split("*").map((item, index) => (
+                  <p className="text-sm" key={index}>
+                    {item}
+                  </p>
+                ))}
+              </>
             ))}
           </div>
         </div>
@@ -57,7 +65,7 @@ const Builder = () => {
         {/* Editor Area */}
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
-            <Editor />
+            <Editor fileNames={obj.files} />
           </div>
         </div>
       </div>
