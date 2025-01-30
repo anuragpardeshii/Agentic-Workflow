@@ -26,12 +26,9 @@ function Home() {
     }
     try {
       const response = await generateResponse(prompt);
-      let cleanedData = response
-        .replace(/json|/g, "")
-        .trim()
-        .replace(/[\u200B-\u200D\uFEFF]/g, "");
+      let cleanedData = response.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
 
-      let cleanedDataArr = cleanedData.split("```");
+      let cleanedDataArr = cleanedData.split("```json");
 
       setGetResponse(cleanedDataArr);
     } catch (error) {
