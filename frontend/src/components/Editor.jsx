@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import StackBlitzSDK from "@stackblitz/sdk";
+import React, { useState } from "react";
 import sha1 from "sha1";
 
 const Editor = () => {
@@ -33,7 +32,7 @@ const Editor = () => {
 
       console.log("Site created:", siteData);
 
-      // Step 2: Prepare files for deployment (only index.html, style.css, and app.js)
+      // Step 2: Prepare files for deployment
       const files = {
         "/index.html": `<!DOCTYPE html>
           <html lang="en">
@@ -59,55 +58,51 @@ const Editor = () => {
           text-align: center;
           padding: 20px;
         }`,
-        "/app.js": btoa(`document.addEventListener("DOMContentLoaded", () => {
-  const newTodoInput = document.getElementById("newTodo");
-  const addTodoButton = document.getElementById("addTodo");
-  const todoList = document.getElementById("todoList");
+        "/app.js": `document.addEventListener("DOMContentLoaded", () => {
+          const newTodoInput = document.getElementById("newTodo");
+          const addTodoButton = document.getElementById("addTodo");
+          const todoList = document.getElementById("todoList");
 
-  const todos = [];
+          const todos = [];
 
-  // Function to render todos in the list
-  function renderTodos() {
-    todoList.innerHTML = ""; // Clear the current list
-    todos.forEach((todo, index) => {
-      const todoItem = document.createElement("li");
-      todoItem.textContent = todo;
+          function renderTodos() {
+            todoList.innerHTML = ""; 
+            todos.forEach((todo, index) => {
+              const todoItem = document.createElement("li");
+              todoItem.textContent = todo;
 
-      // Create a delete button for each todo
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.onclick = () => {
-        todos.splice(index, 1); // Remove todo from the array
-        renderTodos(); // Re-render the list
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Delete";
+              deleteButton.onclick = () => {
+                todos.splice(index, 1);
+                renderTodos();
+              };
+
+              todoItem.appendChild(deleteButton);
+              todoList.appendChild(todoItem);
+            });
+          }
+
+          addTodoButton.onclick = () => {
+            const newTodo = newTodoInput.value.trim();
+            if (newTodo) {
+              todos.push(newTodo);
+              newTodoInput.value = "";
+              renderTodos();
+            }
+          };
+
+          renderTodos();
+        });`,
       };
 
-      todoItem.appendChild(deleteButton);
-      todoList.appendChild(todoItem);
-    });
-  }
-
-  // Add a new todo
-  addTodoButton.onclick = () => {
-    const newTodo = newTodoInput.value.trim();
-    if (newTodo) {
-      todos.push(newTodo); // Add the new todo to the array
-      newTodoInput.value = ""; // Clear the input
-      renderTodos(); // Re-render the list
-    }
-  };
-
-  renderTodos(); // Initial render of the empty list
-});
-`),
-      };
-
+      // Step 3: Compute file hashes
       const fileHashes = {};
       for (const file in files) {
-        const hash = sha1(files[file]).toString();
-        fileHashes[file] = hash;
+        fileHashes[file] = sha1(files[file]).toString();
       }
 
-      // Step 3: Create deploy
+      // Step 4: Create deploy
       const deployResponse = await fetch(
         `https://api.netlify.com/api/v1/sites/${siteId}/deploys`,
         {
@@ -116,7 +111,7 @@ const Editor = () => {
             Authorization: `Bearer ${netlifyToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ files: { [file]: files[file] } }),
+          body: JSON.stringify({ files: fileHashes }),
         }
       );
 
@@ -126,26 +121,21 @@ const Editor = () => {
       }
 
       const deployData = await deployResponse.json();
-      const deployId = deployData.id; // Get the deploy ID for the next steps
+      const deployId = deployData.id;
+
       alert(`Deployment started! Deploy ID: ${deployId}`);
 
-      // Step 4: Deploy files individually using PUT method
-      const fileDeployments = [
-        { file: "/index.html", content: files["/index.html"] },
-        { file: "/style.css", content: files["/style.css"] },
-        { file: "/app.js", content: files["/app.js"] },
-      ];
-
-      for (const { file, content } of fileDeployments) {
+      // Step 5: Upload files via PUT request
+      for (const file in files) {
         const putResponse = await fetch(
           `https://api.netlify.com/api/v1/deploys/${deployId}/files${file}`,
           {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${netlifyToken}`,
-              "Content-Type": "application/json",
+              "Content-Type": "application/octet-stream",
             },
-            body: JSON.stringify({ content }), // Send the raw content here
+            body: files[file], // Send raw file content
           }
         );
 
@@ -163,100 +153,6 @@ const Editor = () => {
       alert(`Error: ${error.message}`);
     }
   };
-
-  //   useEffect(() => {
-  //     StackBlitzSDK.embedProject(
-  //       "stackblitz-container",
-  //       {
-  //         files: {
-  //           "src/App.js": `import React, { useState } from "react";
-  // import TodoList from "../components/TodoList.js";
-  // import AddTodo from "../components/AddTodo.js";
-
-  // export default function App() {
-  //   const [todos, setTodos] = useState([]);
-
-  //   const addTodo = (todo) => {
-  //     setTodos([...todos, todo]);
-  //   };
-
-  //   const removeTodo = (index) => {
-  //     const updatedTodos = todos.filter((_, i) => i !== index);
-  //     setTodos(updatedTodos);
-  //   };
-
-  //   return (
-  //     <div className="p-10 bg-gray-100 min-h-screen">
-  //       <h1 className="text-2xl font-bold text-blue-600 mb-4">Todo App</h1>
-  //       <AddTodo addTodo={addTodo} />
-  //       <TodoList todos={todos} removeTodo={removeTodo} />
-  //     </div>
-  //   );
-  // }`,
-  //           "components/TodoList.js": `import React from "react";
-  // import TodoItem from "./TodoItem";
-
-  // export default function TodoList({ todos, removeTodo }) {
-  //   return (
-  //     <div className="mt-4">
-  //       {todos.map((todo, index) => (
-  //         <TodoItem key={index} todo={todo} index={index} removeTodo={removeTodo} />
-  //       ))}
-  //     </div>
-  //   );
-  // }`,
-  //           "components/TodoItem.js": `import React from "react";
-
-  // export default function TodoItem({ todo, index, removeTodo }) {
-  //   return (
-  //     <div className="flex justify-between items-center p-2 bg-white shadow-md rounded mb-2">
-  //       <span>{todo}</span>
-  //       <button
-  //         onClick={() => removeTodo(index)}
-  //         className="text-red-500 hover:text-red-700"
-  //       >
-  //         Delete
-  //       </button>
-  //     </div>
-  //   );
-  // }`,
-  //           "components/AddTodo.js": `import React, { useState } from "react";
-
-  // export default function AddTodo({ addTodo }) {
-  //   const [newTodo, setNewTodo] = useState("");
-
-  //   const handleAddClick = () => {
-  //     if (newTodo) {
-  //       addTodo(newTodo);
-  //       setNewTodo("");
-  //     }
-  //   };
-
-  //   return (
-  //     <div className="flex gap-2">
-  //       <input
-  //         type="text"
-  //         value={newTodo}
-  //         onChange={(e) => setNewTodo(e.target.value)}
-  //         placeholder="Add a new todo"
-  //         className="p-2 border rounded flex-1"
-  //       />
-  //       <button
-  //         onClick={handleAddClick}
-  //         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-  //       >
-  //         Add
-  //       </button>
-  //     </div>
-  //   );
-  // }`,
-  //         },
-  //         template: "create-react-app",
-  //         title: "My Project",
-  //       },
-  //       { height: "100%" }
-  //     );
-  //   }, []);
 
   return (
     <div style={{ height: "100vh" }}>
@@ -277,15 +173,11 @@ const Editor = () => {
         />
         <button
           onClick={deployToNetlify}
-          className="bg-blue-500 text-white p-2 rounded"
+          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
         >
           Deploy to Netlify
         </button>
       </div>
-      <div
-        id="stackblitz-container"
-        style={{ height: "600px", width: "100%" }}
-      ></div>
     </div>
   );
 };
