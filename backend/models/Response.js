@@ -5,6 +5,14 @@ const responseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  prompt: {
+    type: String,
+    required: true,
+  },
+  history: {
+    type: Array,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

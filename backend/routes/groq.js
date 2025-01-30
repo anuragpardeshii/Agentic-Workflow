@@ -42,10 +42,10 @@ router.post("/generate", async (req, res) => {
       }
     }
 
-    const response = new Response({ content: accumulatedContent });
+    const response = new Response({ content: accumulatedContent, prompt });
     await response.save();
 
-    res.json({ content: accumulatedContent });
+    res.status(200).json({ response });
   } catch (err) {
     console.error("Error:", err);
     const errorMessage = err.response?.data?.error?.message || err.message;
