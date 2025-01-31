@@ -1,15 +1,114 @@
 import React, { useState, useEffect } from "react";
 import { Play } from "lucide-react";
 import CodeEditor from "../components/CodeEditor";
+import { updateProject } from "../services/response";
 
 const Builder = () => {
-  const prompt = localStorage.getItem("prompt");
-  const [input, setInput] = useState(prompt);
+  const storedPrompt = localStorage.getItem("prompt") || "";
+  const [input, setInput] = useState(storedPrompt);
+  const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const jsonData = localStorage.getItem("jsonData");
-  const parseJSON = JSON.parse(jsonData);
-
+  const parseJSON = jsonData ? JSON.parse(jsonData) : null;
   const instructions = localStorage.getItem("instructions");
+  const prevContent = localStorage.getItem("content") || "";
+
+  const separateJsonAndText = (content) => {
+    if (!content || typeof content !== "string") {
+      console.error("Invalid content provided to separateJsonAndText");
+      return null;
+    }
+
+    try {
+      const jsonRegex = /```json\s*({[\s\S]*?})\s*```/;
+      const match = content.match(jsonRegex);
+
+      if (match && match[1]) {
+        const jsonString = match[1];
+        const instructions = content.replace(match[0], "").trim();
+
+        // Validate JSON before parsing
+        const parsedJson = JSON.parse(jsonString);
+
+        return {
+          jsonData: parsedJson,
+          instructions: instructions,
+        };
+      }
+
+      console.log("No JSON pattern found in content");
+      return null;
+    } catch (error) {
+      console.error("Error parsing content:", error);
+      return null;
+    }
+  };
+
+  const generatingUpdatingContent = async () => {
+    if (!input.trim()) {
+      setError("Prompt cannot be empty");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await updateProject({
+        prompt: input,
+        previousContent: prevContent,
+      });
+
+      console.log(response.response.content); // response is showing response{...}
+
+      if (!response || !response.response.content) {
+        throw new Error("Invalid response from server"); //but it is getting invalid response from server.
+      }
+
+      localStorage.setItem("content", response.response.content);
+
+      const parsedContent = separateJsonAndText(response.response.content);
+
+      if (parsedContent) {
+        localStorage.setItem("prompt", response.response.prompt);
+        localStorage.setItem(
+          "jsonData",
+          JSON.stringify(parsedContent.jsonData)
+        );
+        localStorage.setItem("instructions", parsedContent.instructions);
+
+        console.log("JSON Data:", parsedContent.jsonData);
+        console.log("Instructions:", parsedContent.instructions);
+      } else {
+        console.log("No valid JSON found in content");
+        setError("Invalid content format received");
+      }
+
+      setContent(localStorage.getItem("jsonData"));
+    } catch (error) {
+      console.error("Error generating content:", error);
+      setError(
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to generate content"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      generatingUpdatingContent();
+    }
+  };
+
+  // Ensure parseJSON exists before rendering
+  if (!parseJSON) {
+    return <div className="text-white p-4">Loading...</div>;
+  }
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
@@ -40,25 +139,34 @@ const Builder = () => {
           </div>
         </div>
 
-        {/* Command Input */}
-
         <div className="p-4 bg-gray-900 border-t border-gray-800">
           <div className="flex items-center bg-gray-950 rounded-lg border border-gray-800 p-2">
-            <Play className="w-4 h-4 text-gray-500 mr-2 hover:text-white hover:cursor-pointer" />
+            <Play
+              className={`w-4 h-4 mr-2 ${
+                isLoading
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-500 hover:text-white hover:cursor-pointer"
+              }`}
+              onClick={!isLoading ? generatingUpdatingContent : undefined}
+            />
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
               placeholder="Type a command or search..."
               className="flex-1 bg-transparent border-none focus:outline-none text-gray-300 placeholder-gray-600"
+              disabled={isLoading}
             />
           </div>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          {isLoading && (
+            <p className="text-gray-400 text-sm mt-2">Generating content...</p>
+          )}
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Editor Area */}
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
             <CodeEditor json={parseJSON} />

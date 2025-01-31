@@ -7,7 +7,6 @@ const CodeEditor = ({ json }) => {
     const formatFiles = (filesData) => {
       const formattedFiles = {};
 
-      // Convert files object to StackBlitz format
       Object.entries(filesData).forEach(([path, fileData]) => {
         const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
         formattedFiles[normalizedPath] = fileData.code;
@@ -30,9 +29,10 @@ const CodeEditor = ({ json }) => {
             react: "^18.2.0",
             "react-dom": "^18.2.0",
             tailwindcss: "^3.0.0",
-            "lucide-react": "^0.263.1",
+            "lucide-react": "^0.474.0",
             "@types/react": "^18.0.0",
             "@types/react-dom": "^18.0.0",
+            "@types/react-router-dom": "^7.1.4",
           },
         },
         {

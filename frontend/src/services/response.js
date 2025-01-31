@@ -12,15 +12,21 @@ export const getResponseById = async (id) => {
   }
 };
 
-export const updateProject = async (prompt, previousContent) => {
+export const updateProject = async ({ prompt, previousContent }) => {
+  if (!prompt) {
+    throw new Error("Prompt is required");
+  }
+
   try {
     const response = await axios.post(`${API_URL}/groq/update`, {
       prompt,
-      previousContent,
+      previousContent: previousContent || "",
     });
     return response.data;
   } catch (error) {
-    console.error("Error updating project:", error);
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
     throw error;
   }
 };

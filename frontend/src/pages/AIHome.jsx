@@ -28,6 +28,8 @@ function AIHome() {
     try {
       const response = await generateResponse(prompt);
 
+      localStorage.setItem("content", response.content);
+
       const separateJsonAndText = (content) => {
         const jsonRegex = /```json\s*({[\s\S]*?})\s*```/;
         const match = content.match(jsonRegex);
@@ -58,7 +60,6 @@ function AIHome() {
         console.log("JSON Data:", parsedContent.jsonData);
         console.log("Instructions:", parsedContent.instructions);
       } else {
-        localStorage.setItem("content", response.content);
         console.log("No JSON found in content");
       }
     } catch (error) {

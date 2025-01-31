@@ -58,6 +58,10 @@ router.post("/generate", async (req, res) => {
 router.post("/update", async (req, res) => {
   const { prompt, previousContent } = req.body;
 
+  if (!prompt) {
+    return res.status(400).json({ error: "Prompt is required" });
+  }
+
   try {
     const stream = await groq.chat.completions.create({
       messages: [
@@ -67,7 +71,7 @@ router.post("/update", async (req, res) => {
         },
         {
           role: "assistant",
-          content: previousContent,
+          content: previousContent || "",
         },
         {
           role: "user",
@@ -76,7 +80,7 @@ router.post("/update", async (req, res) => {
       ],
       model: "llama-3.3-70b-specdec",
       temperature: 1,
-      max_tokens: 20000,
+      max_tokens: 4096,
       top_p: 1,
       stream: true,
       stop: null,
@@ -91,16 +95,19 @@ router.post("/update", async (req, res) => {
       }
     }
 
-    const response = new Response({ content: accumulatedContent });
+    const response = new Response({
+      prompt,
+      content: accumulatedContent,
+    });
     await response.save();
 
-    res.json({ content: accumulatedContent });
+    res.status(200).json({ response });
   } catch (err) {
     console.error("Error:", err);
     const errorMessage = err.response?.data?.error?.message || err.message;
-    res
-      .status(500)
-      .json({ error: `Failed to update project: ${errorMessage}` });
+    res.status(500).json({
+      error: `Failed to update project: ${errorMessage}`,
+    });
   }
 });
 
