@@ -5,6 +5,7 @@ import Landing from "./components/Landing.jsx";
 import Home from "./components/Home.jsx";
 import CodeEditor from "./components/CodeEditor.jsx";
 import AIHome from "./pages/AIHome.jsx";
+import Deploy from "./components/Deploy.jsx";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/editor" element={<CodeEditor />} />
       {/* <Route path="/landing" element={<Landing />} /> */}
       <Route path="/ai" element={<AIHome />} />
+      <Route path="/deploy" element={<Deploy />} />
     </Routes>
   );
 }
