@@ -76,7 +76,7 @@ router.post("/update", async (req, res) => {
       ],
       model: "llama-3.3-70b-specdec",
       temperature: 1,
-      max_tokens: 8192,
+      max_tokens: 20000,
       top_p: 1,
       stream: true,
       stop: null,

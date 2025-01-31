@@ -12,6 +12,7 @@ import {
   Globe,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -114,13 +115,15 @@ function App() {
             >
               Pricing
             </a>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white transition-colors"
-            >
-              Get Started
-            </motion.button>
+            <Link to="/ai">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white transition-colors"
+              >
+                Get Started
+              </motion.button>
+            </Link>
           </div>
         </div>
       </motion.nav>
@@ -155,15 +158,19 @@ function App() {
             variants={fadeIn}
             className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mb-12"
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white px-8 py-4 rounded-xl font-medium text-lg"
-            >
-              <Wand2 className="w-5 h-5" />
-              <span>Start Building Free</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
+            <Link to="/ai">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white px-8 py-4 rounded-xl font-medium text-lg"
+              >
+                <Wand2 className="w-5 h-5" />
+
+                <span>Start Building Free</span>
+
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            </Link>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

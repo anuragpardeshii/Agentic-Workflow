@@ -1,30 +1,20 @@
 import React, { useState, useEffect } from "react";
-// import Editor from "@monaco-editor/react";
 import { Play } from "lucide-react";
-import Editor from "../components/Editor";
-import { useLocation } from "react-router-dom";
-import { getResponseById } from "../services/response";
+import CodeEditor from "../components/CodeEditor";
 
 const Builder = () => {
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const prompt = localStorage.getItem("prompt");
+  const [input, setInput] = useState(prompt);
 
-  const location = useLocation();
+  const jsonData = localStorage.getItem("jsonData");
+  const parseJSON = JSON.parse(jsonData);
 
-  const getResponse = location.state;
-
-  const objFormString = JSON.stringify(getResponse[1].split("```"));
-  const objForm = JSON.parse(objFormString);
-
-  const obj = JSON.parse(objForm[0]);
-
-  useEffect(() => {}, []);
+  const instructions = localStorage.getItem("instructions");
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
       <div
-        style={{ width: "34%" }}
+        style={{ width: "30%" }}
         className="bg-gray-900 border-r border-gray-800 flex flex-col relative"
       >
         <div className="p-4 flex-1 overflow-y-auto">
@@ -32,23 +22,29 @@ const Builder = () => {
             Instructions
           </h2>
           <div className="space-y-3">
-            <p className="text-sm text-gray-300">{obj.projectTitle}</p>
-            {objForm.slice(1).map((line) => (
-              <>
-                {line.split("*").map((item, index) => (
-                  <p className="text-sm" key={index}>
-                    {item}
-                  </p>
-                ))}
-              </>
-            ))}
+            <div>
+              <h4>{parseJSON.projectTitle}</h4>
+            </div>
+
+            <div>
+              {instructions && (
+                <div className="space-y-3">
+                  {instructions.split("\n").map((line, index) => (
+                    <p key={index} className="text-gray-300">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Command Input */}
+
         <div className="p-4 bg-gray-900 border-t border-gray-800">
           <div className="flex items-center bg-gray-950 rounded-lg border border-gray-800 p-2">
-            <Play className="w-4 h-4 text-gray-500 mr-2" />
+            <Play className="w-4 h-4 text-gray-500 mr-2 hover:text-white hover:cursor-pointer" />
             <input
               type="text"
               value={input}
@@ -65,7 +61,7 @@ const Builder = () => {
         {/* Editor Area */}
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
-            <Editor fileNames={obj.files} />
+            <CodeEditor json={parseJSON} />
           </div>
         </div>
       </div>
