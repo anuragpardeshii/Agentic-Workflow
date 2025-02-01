@@ -23,6 +23,8 @@ Mandatory inclusions:
 - Complete CRA boilerplate (src/index.js, public/index.html)
 - Tailwind config (tailwind.config.js)
 - PostCSS config (postcss.config.js)
+- Global CSS (src/index.css)
+- App Css (src/App.css) 
 - React 18 root API implementation
 - JS file extensions for components
 
@@ -84,7 +86,7 @@ export const updatePrompt = `You are an advanced AI programming assistant tasked
 - Only modify, add, or remove files as explicitly required by the user prompt.
 - Include updated or newly created files in the files and generatedFiles fields.
 - Preserve modular and well-organized code while ensuring clarity and readability.
-- Continue using .jsx extensions for JavaScript XML files.
+- Continue using .js extensions for JavaScript XML files.
 
 4. Code Standards & Design:
 - Adhere to Tailwind CSS conventions for all styling changes.
@@ -104,11 +106,10 @@ export const updatePrompt = `You are an advanced AI programming assistant tasked
 7. Additional Notes:
 - If no errors are found in the provided code, verify its correctness and provide a clear explanation.
 - Handle user queries in a structured, thoughtful, and detailed manner, meeting real-world production standards.
-- Ensure the updated project supports JSX syntax, React hooks, and Tailwind CSS without issues.
+- Ensure the updated project supports JS syntax, React hooks, and Tailwind CSS without issues.
 - Update Example JSON Structure:
 
 {
-  "template": "react",
   "projectTitle": "Updated Project",
   "explanation": "Describe the updates or fixes made in the code.",
   "files": {

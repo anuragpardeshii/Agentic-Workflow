@@ -3,10 +3,7 @@ import mongoose from "mongoose";
 export const connectDB = async (retries = 5, delay = 5000) => {
   for (let i = 0; i < retries; i++) {
     try {
-      await mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      await mongoose.connect(process.env.MONGO_URI);
       console.log("Connected to MongoDB");
       return;
     } catch (err) {
