@@ -9,7 +9,12 @@ const CodeEditor = ({ json }) => {
 
       Object.entries(filesData).forEach(([path, fileData]) => {
         const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
-        formattedFiles[normalizedPath] = fileData.code;
+
+        // Convert objects to JSON strings to ensure uniform data storage
+        formattedFiles[normalizedPath] =
+          typeof fileData.code === "object"
+            ? JSON.stringify(fileData.code, null, 2)
+            : fileData.code;
       });
 
       return formattedFiles;
@@ -17,6 +22,7 @@ const CodeEditor = ({ json }) => {
 
     try {
       const files = formatFiles(json.files);
+      console.log(files);
 
       StackBlitzSDK.embedProject(
         "stackblitz-container",
@@ -25,15 +31,6 @@ const CodeEditor = ({ json }) => {
           template: "create-react-app",
           title: json.projectTitle || "React Todo App",
           description: json.explanation || "A React Todo Application",
-          dependencies: {
-            react: "^18.2.0",
-            "react-dom": "^18.2.0",
-            tailwindcss: "^3.0.0",
-            "lucide-react": "^0.474.0",
-            "@types/react": "^18.0.0",
-            "@types/react-dom": "^18.0.0",
-            "@types/react-router-dom": "^7.1.4",
-          },
         },
         {
           height: "100%",
