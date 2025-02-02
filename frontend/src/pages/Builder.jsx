@@ -15,6 +15,8 @@ const Builder = () => {
   const instructions = localStorage.getItem("instructions");
   const prevContent = localStorage.getItem("content") || "";
 
+  const location = window.location.href;
+
   const separateJsonAndText = (content) => {
     if (!content || typeof content !== "string") {
       console.error("Invalid content provided to separateJsonAndText");
@@ -61,10 +63,10 @@ const Builder = () => {
         previousContent: prevContent,
       });
 
-      console.log(response.response.content); // response is showing response{...}
+      console.log(response.response.content);
 
       if (!response || !response.response.content) {
-        throw new Error("Invalid response from server"); //but it is getting invalid response from server.
+        throw new Error("Invalid response from server");
       }
 
       localStorage.setItem("content", response.response.content);
@@ -104,6 +106,15 @@ const Builder = () => {
       generatingUpdatingContent();
     }
   };
+
+  useEffect(() => {
+    if (location === "http://localhost:5173/ai") {
+      localStorage.removeItem("prompt");
+      localStorage.removeItem("jsonData");
+      localStorage.removeItem("instructions");
+      localStorage.removeItem("content");
+    }
+  }, []);
 
   // Ensure parseJSON exists before rendering
   if (!parseJSON) {

@@ -72,6 +72,11 @@ function AIHome() {
   useEffect(() => {
     if (getResponse !== null) {
       navigate("/builder");
+    } else if (window.location.href === "http://localhost:5173/ai") {
+      localStorage.removeItem("prompt");
+      localStorage.removeItem("jsonData");
+      localStorage.removeItem("instructions");
+      localStorage.removeItem("content");
     }
   }, [getResponse, navigate]);
 
