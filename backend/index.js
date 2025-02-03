@@ -7,12 +7,15 @@ import { Server } from "socket.io";
 import groqRoutes from "./routes/groq.js";
 import responsesRoutes from "./routes/responses.js";
 import rateLimit from "express-rate-limit";
+import authRoutes from "./routes/auth.js";
+import jwt from "jsonwebtoken";
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
-dotenv.config();
 connectDB();
 
 const requiredEnvVars = [
@@ -63,12 +66,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Socket.IO connection handling
 const connectedClients = new Set();
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
   connectedClients.add(socket.id);
-  // Broadcast current connected clients count
   io.emit("clientCount", connectedClients.size);
   socket.on("error", (error) => {
     console.error("Socket error:", socket.id, error);
@@ -80,9 +81,23 @@ io.on("connection", (socket) => {
   });
 });
 
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.id;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
 app.use("/api/", limiter);
-app.use("/api/groq", groqRoutes);
-app.use("/api/responses", responsesRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/groq", authenticate, groqRoutes);
+app.use("/api/responses", authenticate, responsesRoutes);
 
 server.listen(PORT, () => {
   console.log(

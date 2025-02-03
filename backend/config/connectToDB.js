@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const connectDB = async (retries = 5, delay = 5000) => {
   for (let i = 0; i < retries; i++) {
