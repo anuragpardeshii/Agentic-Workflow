@@ -175,7 +175,7 @@ function Home() {
                 placeholder="Describe your dream website..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="w-full rounded-xl text-center bg-transparent border-purple-500/30 text-purple-100 placeholder-purple-400/60 backdrop-blur-xl"
+                className="w-full rounded-xl text-center bg-transparent border-purple-500/30 text-purple-800 placeholder-purple-400/60"
               />
               <motion.div
                 className="absolute inset-0 -z-10 rounded-xl"
