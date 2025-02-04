@@ -162,7 +162,6 @@ const Builder = () => {
             />
             <input
               type="text"
-              value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type a command or search..."

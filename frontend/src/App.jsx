@@ -9,7 +9,7 @@ import Deploy from "./components/Deploy.jsx";
 import { AuthProvider } from "./components/AuthContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx"; 
+import Register from "./pages/Register.jsx";
 
 function App() {
   return (
