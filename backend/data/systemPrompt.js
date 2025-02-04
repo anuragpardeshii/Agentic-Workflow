@@ -60,7 +60,6 @@ export const systemPrompt = `You are an advanced AI programming assistant tasked
 - No partial code snippets or placeholder TODOs
 - Production-optimized build configuration
 - Documentation-ready code comments
-- PWA-ready service worker configuration
 
 8. Compliance Checks
 - CRA scripts in package.json
