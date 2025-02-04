@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import StackBlitzSDK from "@stackblitz/sdk";
 
 const CodeEditor = ({ json }) => {
-  console.log(json);
   useEffect(() => {
     if (!json) return;
     const formatFiles = (filesData) => {

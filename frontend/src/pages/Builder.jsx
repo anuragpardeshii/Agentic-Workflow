@@ -116,7 +116,6 @@ const Builder = () => {
     }
   }, []);
 
-  // Ensure parseJSON exists before rendering
   if (!parseJSON) {
     return <div className="text-white p-4">Loading...</div>;
   }
