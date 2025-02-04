@@ -115,7 +115,7 @@ function App() {
             >
               Pricing
             </a>
-            <Link to="/ai">
+            <Link to="/landing">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -158,7 +158,7 @@ function App() {
             variants={fadeIn}
             className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mb-12"
           >
-            <Link to="/ai">
+            <Link to="/landing">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -274,7 +274,9 @@ function App() {
             className="group flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white px-8 py-4 rounded-xl font-medium text-lg mx-auto"
           >
             <Sparkles className="w-5 h-5" />
-            <span>Start Building Free</span>
+            <Link to="/landing">
+              <span>Start Building Free</span>
+            </Link>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </motion.button>
         </motion.div>

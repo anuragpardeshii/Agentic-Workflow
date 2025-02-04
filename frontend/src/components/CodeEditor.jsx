@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import StackBlitzSDK from "@stackblitz/sdk";
 
 const CodeEditor = ({ json }) => {
+  console.log(json);
   useEffect(() => {
     if (!json) return;
     const formatFiles = (filesData) => {
@@ -41,6 +42,7 @@ const CodeEditor = ({ json }) => {
       console.error("Error setting up StackBlitz:", error);
     }
   }, []);
+  // add dependencies of files to useEffect
 
   return (
     <div

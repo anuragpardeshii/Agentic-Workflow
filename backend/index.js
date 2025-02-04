@@ -8,7 +8,6 @@ import groqRoutes from "./routes/groq.js";
 import responsesRoutes from "./routes/responses.js";
 import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.js";
-import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -81,23 +80,11 @@ io.on("connection", (socket) => {
   });
 });
 
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
-  }
-};
-
 app.use("/api/", limiter);
-app.use("/api/auth", authRoutes);
 app.use("/api/groq", groqRoutes);
 app.use("/api/responses", responsesRoutes);
+
+app.use("/api/auth", authRoutes);
 
 server.listen(PORT, () => {
   console.log(
