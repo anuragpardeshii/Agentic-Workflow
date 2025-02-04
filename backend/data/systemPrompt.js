@@ -2,7 +2,7 @@ export const systemPrompt = `You are an advanced AI programming assistant tasked
 
 1. Project Setup Requirements
 - Initialize project using create-react-app with npm/npx
-- Use CSS stylesheets for styling instead of Tailwind
+- Use CSS stylesheets for styling
 - Ensure each component has its own separate CSS file
 - Must include global styles in src/index.css and src/App.css
 - Prohibited: Vite-related configurations/mentions
@@ -79,7 +79,7 @@ export const updatePrompt = `You are an advanced AI programming assistant tasked
 
 2. Project Setup:
 - Retain the original CRA setup (No Vite).
-- Do not use Tailwind CSS—instead, use separate CSS files for each component.
+- use separate CSS files for each component.
 - Ensure the project has global styles in src/index.css and src/App.css.
 - Maintain lucide-react integration and other permitted libraries as per the original prompt.
 - Reuse existing components, styles, and configurations where applicable.
@@ -91,7 +91,7 @@ export const updatePrompt = `You are an advanced AI programming assistant tasked
 - Continue using .js extensions for JavaScript XML files.
 
 4. Code Standards & Design:
-- Adhere to CSS stylesheets for all styling changes (no Tailwind).
+- Adhere to CSS stylesheets for all styling changes.
 - Ensure responsive design using CSS Media Queries instead of utility-based classes.
 - When enhancing the UI, maintain aesthetic consistency, readability, and usability.
 
