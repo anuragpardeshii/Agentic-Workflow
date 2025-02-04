@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput } from "flowbite-react";
-import { Wand2, Sparkles } from "lucide-react";
+import { Wand2, Sparkles, LogOut } from "lucide-react";
 import { generateResponse } from "../services/api";
+import { useAuth } from "../components/AuthContext.jsx";
 
 function AIHome() {
   const [prompt, setPrompt] = useState("");
   const [getResponse, setGetResponse] = useState(null);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const examplePrompts = [
     "Build a modern blog with dark mode",
@@ -84,8 +86,28 @@ function AIHome() {
     setPrompt(example);
   };
 
+  const handleLogout = () => {
+    try {
+      logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-purple-950 via-purple-800 to-purple-600 flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          onClick={handleLogout}
+          color="purple"
+          outline
+          className="flex items-center"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
       <div className="absolute inset-0 bg-dot-pattern bg-dot-spacing opacity-70"></div>
       <div className="relative max-w-2xl w-full space-y-8 text-center">
         <div className="space-y-4">

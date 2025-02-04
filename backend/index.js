@@ -96,8 +96,8 @@ const authenticate = (req, res, next) => {
 
 app.use("/api/", limiter);
 app.use("/api/auth", authRoutes);
-app.use("/api/groq", authenticate, groqRoutes);
-app.use("/api/responses", authenticate, responsesRoutes);
+app.use("/api/groq", groqRoutes);
+app.use("/api/responses", responsesRoutes);
 
 server.listen(PORT, () => {
   console.log(
