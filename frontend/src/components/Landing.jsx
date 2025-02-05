@@ -30,25 +30,54 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!prompt.trim()) {
       alert("Please enter a prompt.");
       return;
     }
-    setIsLoading(true);
+
     try {
       const response = await generateResponse(prompt);
-      let cleanedData = response
-        .replace(/json|/g, "")
-        .trim()
-        .replace(/[\u200B-\u200D\uFEFF]/g, "");
-      let cleanedDataArr = cleanedData.split("\n");
-      setGetResponse(cleanedDataArr);
+
+      localStorage.setItem("content", response.content);
+
+      const separateJsonAndText = (content) => {
+        const jsonRegex = /```json\s*({[\s\S]*?})\s*```/;
+        const match = content.match(jsonRegex);
+
+        if (match) {
+          const jsonString = match[1];
+          const instructions = content.replace(match[0], "").trim();
+
+          return {
+            jsonData: JSON.parse(jsonString),
+            instructions: instructions,
+          };
+        }
+
+        return null;
+      };
+
+      const parsedContent = separateJsonAndText(response.content);
+
+      if (parsedContent) {
+        localStorage.setItem("prompt", response.prompt);
+        localStorage.setItem(
+          "jsonData",
+          JSON.stringify(parsedContent.jsonData)
+        );
+        localStorage.setItem("instructions", parsedContent.instructions);
+
+        console.log("JSON Data:", parsedContent.jsonData);
+        console.log("Instructions:", parsedContent.instructions);
+      } else {
+        console.log("No JSON found in content");
+      }
     } catch (error) {
       console.error("Error generating response:", error.message);
-      alert("Failed to generate response. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
+
+    setGetResponse(localStorage.getItem("jsonData"));
   };
 
   useEffect(() => {
