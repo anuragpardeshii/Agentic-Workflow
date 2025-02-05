@@ -9,6 +9,7 @@ const Builder = () => {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [refreshEditor, setRereshEditor] = useState(false);
 
   const jsonData = localStorage.getItem("jsonData");
   const parseJSON = jsonData ? JSON.parse(jsonData) : null;
@@ -89,6 +90,7 @@ const Builder = () => {
       }
 
       setContent(localStorage.getItem("jsonData"));
+      setRereshEditor((prev) => !prev);
     } catch (error) {
       console.error("Error generating content:", error);
       setError(
@@ -178,7 +180,7 @@ const Builder = () => {
       <div className="flex-1 flex flex-col">
         <div className="flex-1 h-full bg-gray-950 overflow-hidden">
           <div className="h-full">
-            <CodeEditor json={parseJSON} />
+            <CodeEditor key={refreshEditor} json={parseJSON} />
           </div>
         </div>
       </div>
