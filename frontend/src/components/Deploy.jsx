@@ -1,291 +1,147 @@
-"use client";
-
-import { useState } from "react";
-import sha1 from "sha1";
-import { Alert, Button, Label, TextInput, Card } from "flowbite-react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 
 const Deploy = () => {
-  const [netlifyToken, setNetlifyToken] = useState("");
-  const [siteName, setSiteName] = useState("");
-  const [siteInfo, setSiteInfo] = useState(null);
-  const deployToNetlify = async () => {
-    if (!netlifyToken || !siteName) {
-      alert("Please provide your Netlify token and site name.");
-      return;
-    }
+  const [loading, setLoading] = useState(false);
+  const [deploymentUrl, setDeploymentUrl] = useState(null);
+  const [error, setError] = useState(null);
+  const [vercelToken, setVercelToken] = useState("");
 
+  const deployToVercel = async () => {
     try {
-      // Step 1: Create a new site
-      const siteResponse = await fetch("https://api.netlify.com/api/v1/sites", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${netlifyToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: siteName }),
-      });
+      setLoading(true);
+      setDeploymentUrl(null);
+      setError(null);
 
-      if (!siteResponse.ok) {
-        const errorData = await siteResponse.json();
-        throw new Error(errorData.message || "Failed to create site.");
+      if (!vercelToken.trim()) {
+        throw new Error("Please enter your Vercel access token.");
       }
 
-      const siteData = await siteResponse.json();
-      setSiteInfo(siteData);
-      const siteId = siteData.id;
+      // Retrieve project data from localStorage
+      const jsonData = JSON.parse(localStorage.getItem("jsonData"));
 
-      console.log("Site created:", siteData);
+      if (!jsonData || !jsonData.files) {
+        throw new Error("No project data found in localStorage.");
+      }
 
-      // Step 2: Prepare files for deployment
-      const files = {
-        "/index.html": `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Todo App</title>
-            <link rel="stylesheet" href="style.css">
-          </head>
-          <body>
-            <div id="app">
-              <h1>Todo App</h1>
-              <input type="text" id="newTodo" placeholder="Add a new todo">
-              <button id="addTodo">Add Todo</button>
-              <ul id="todoList"></ul>
-            </div>
-            <script src="app.js"></script>
-          </body>
-          </html>`,
-        "/style.css": `body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f4;
-          text-align: center;
-          padding: 20px;
-        }`,
-        "/app.js": `document.addEventListener("DOMContentLoaded", () => {
-          const newTodoInput = document.getElementById("newTodo");
-          const addTodoButton = document.getElementById("addTodo");
-          const todoList = document.getElementById("todoList");
+      const projectTitle = jsonData.projectTitle || "default-project";
+      const files = jsonData.files;
 
-          const todos = [];
+      const filesArray = Object.entries(files).map(([filePath, fileObj]) => ({
+        file: filePath.replace(/^\//, ""),
+        data:
+          typeof fileObj.code === "string"
+            ? fileObj.code
+            : JSON.stringify(fileObj.code),
+      }));
 
-          function renderTodos() {
-            todoList.innerHTML = ""; 
-            todos.forEach((todo, index) => {
-              const todoItem = document.createElement("li");
-              todoItem.textContent = todo;
+      if (!filesArray.length) {
+        throw new Error("No files available to deploy.");
+      }
 
-              const deleteButton = document.createElement("button");
-              deleteButton.textContent = "Delete";
-              deleteButton.onclick = () => {
-                todos.splice(index, 1);
-                renderTodos();
-              };
-
-              todoItem.appendChild(deleteButton);
-              todoList.appendChild(todoItem);
-            });
-          }
-
-          addTodoButton.onclick = () => {
-            const newTodo = newTodoInput.value.trim();
-            if (newTodo) {
-              todos.push(newTodo);
-              newTodoInput.value = "";
-              renderTodos();
-            }
-          };
-
-          renderTodos();
-        });`,
+      const payload = {
+        files: filesArray,
+        name: projectTitle.toLowerCase().replace(/\s+/g, "-"),
+        projectSettings: { framework: "create-react-app" },
       };
 
-      // Step 3: Compute file hashes
-      const fileHashes = {};
-      for (const file in files) {
-        fileHashes[file] = sha1(files[file]).toString();
-      }
+      console.log("Payload being sent:", JSON.stringify(payload, null, 2));
 
-      // Step 4: Create deploy
-      const deployResponse = await fetch(
-        `https://api.netlify.com/api/v1/sites/${siteId}/deploys`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${netlifyToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ files: fileHashes }),
-        }
-      );
-
-      if (!deployResponse.ok) {
-        const errorData = await deployResponse.json();
-        throw new Error(errorData.message || "Failed to deploy files.");
-      }
-
-      const deployData = await deployResponse.json();
-      const deployId = deployData.id;
-
-      alert(`Deployment started! Deploy ID: ${deployId}`);
-
-      // Step 5: Upload files via PUT request
-      for (const file in files) {
-        const putResponse = await fetch(
-          `https://api.netlify.com/api/v1/deploys/${deployId}/files${file}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${netlifyToken}`,
-              "Content-Type": "application/octet-stream",
-            },
-            body: files[file], // Send raw file content
-          }
-        );
-
-        if (!putResponse.ok) {
-          const errorData = await putResponse.json();
-          throw new Error(errorData.message || `Failed to upload ${file}`);
-        }
-
-        console.log(`${file} uploaded successfully.`);
-      }
-
-      // Update the state with deployment info
-      setDeploymentInfo({
-        name: siteData.name,
-        url: siteData.ssl_url,
-        adminUrl: siteData.admin_url,
-        deployUrl: deployData.deploy_ssl_url,
+      const response = await fetch("https://api.vercel.com/v13/deployments", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${vercelToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
-      alert("Deployment successful!");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Deployment failed: ${response.status} - ${errorText}`);
+      }
+
+      const responseData = await response.json();
+      setDeploymentUrl(responseData.url);
+      console.log("✅ Deployment successful:", responseData);
     } catch (error) {
-      console.error("Error deploying to Netlify:", error);
+      console.error("❌ Deployment error:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-4">Deploy to Netlify</h1>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg">
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">
+          Deploy to Vercel 🚀
+        </h2>
 
-      <Alert color="info" className="mb-4 bg-cyan-300 text-cyan-700 rounded-md">
-        <h3 className="text-lg font-medium mb-2">
-          How to get your Netlify Access Token:
-        </h3>
-        <ol className="list-decimal list-inside">
-          <li>Log in to your Netlify account</li>
-          <li>Go to User Settings (click your avatar in the top right)</li>
-          <li>Navigate to the "Applications" section</li>
-          <li>Under "Personal access tokens", click "New access token"</li>
-          <li>Give your token a description and click "Generate token"</li>
-          <li>Copy the generated token (you won't be able to see it again!)</li>
-        </ol>
-      </Alert>
-
-      <Alert
-        color="warning"
-        className="mb-4 bg-lime-200 text-lime-700 rounded-md"
-      >
-        <h3 className="text-lg font-medium mb-2">Important Note:</h3>
-        <p>
-          The site name must be unique across all Netlify sites. Choose a name
-          that is unlikely to be taken, such as including your username or a
-          unique identifier.
-        </p>
-      </Alert>
-
-      <div className="mb-4">
-        <div className="mb-2">
-          <Label htmlFor="netlifyToken" value="Netlify Token" />
-        </div>
-        <TextInput
-          id="netlifyToken"
-          type="text"
-          placeholder="Enter your Netlify token"
-          value={netlifyToken}
-          onChange={(e) => setNetlifyToken(e.target.value)}
-        />
-      </div>
-
-      <div className="mb-4">
-        <div className="mb-2">
-          <Label htmlFor="siteName" value="Site Name (must be unique)" />
-        </div>
-        <TextInput
-          id="siteName"
-          type="text"
-          placeholder="Enter a unique site name"
-          value={siteName}
-          onChange={(e) => setSiteName(e.target.value)}
-        />
-      </div>
-
-      <Button
-        onClick={deployToNetlify}
-        className="w-full text-lg bg-gray-600 hover:bg-gray-700"
-      >
-        Deploy to Netlify
-      </Button>
-
-      {siteInfo && (
-        <Card className="mt-6">
-          <div className="space-y-2 p-4">
-            <h2 className="text-2xl font-semibold mb-4">
-              Deployment Successful!
-            </h2>
-            <p>
-              <strong>Site Name:</strong> {siteInfo.name}
-            </p>
-            <p>
-              <strong>Site URL:</strong>{" "}
+        {/* Instruction Card */}
+        <div className="bg-blue-100 p-4 rounded-lg text-gray-700 mb-4">
+          <h3 className="text-lg font-semibold">
+            How to Get a Vercel Access Token:
+          </h3>
+          <ol className="list-decimal list-inside text-sm mt-2">
+            <li>
+              Go to{" "}
               <a
-                href={siteInfo.deployUrl}
+                href="https://vercel.com/account/tokens"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 underline"
               >
-                {siteInfo.deployUrl}
+                Vercel Tokens
               </a>
-            </p>
-            <p>
-              <strong>Deploy URL:</strong>{" "}
-              <a
-                href={siteInfo.deployUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                {siteInfo.deployUrl}
-              </a>
-            </p>
+              .
+            </li>
+            <li>Click "Create Token" and give it a name.</li>
+            <li>Copy the generated token and paste it below.</li>
+          </ol>
+        </div>
+
+        {/* Vercel Token Input */}
+        <input
+          type="text"
+          placeholder="Enter your Vercel Access Token"
+          value={vercelToken}
+          onChange={(e) => setVercelToken(e.target.value)}
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+        />
+
+        {/* Deploy Button */}
+        <button
+          onClick={deployToVercel}
+          disabled={loading}
+          className={`w-full bg-blue-600 text-white font-semibold py-3 rounded-lg transition duration-300 ${
+            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+          }`}
+        >
+          {loading ? "Deploying..." : "Deploy Now"}
+        </button>
+
+        {/* Deployment URL */}
+        {deploymentUrl && (
+          <div className="mt-4 p-3 bg-green-100 text-green-800 text-center rounded-lg">
+            ✅ Deployment Successful!{" "}
+            <a
+              href={`https://${deploymentUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {deploymentUrl}
+            </a>
           </div>
-        </Card>
-      )}
+        )}
 
-      <div className="mt-6">
-        <h2 className="text-2xl font-semibold mb-2">Deployment Guide:</h2>
-        <ol className="list-decimal list-inside space-y-2">
-          <li>Obtain your Netlify Access Token as described above.</li>
-          <li>
-            Choose a unique site name. This will be part of your deployed URL
-            (e.g., your-site-name.netlify.app).
-          </li>
-          <li>
-            Enter your Netlify Access Token and chosen site name in the fields
-            above.
-          </li>
-          <li>Click the "Deploy to Netlify" button.</li>
-          <li>
-            Wait for the deployment process to complete. You'll see the
-            deployment information once it's done.
-          </li>
-          <li>
-            Once deployment is successful, you can access your site using the
-            provided URLs.
-          </li>
-        </ol>
+        {/* Error Message */}
+        {error && (
+          <p className="text-red-600 bg-red-100 p-3 rounded-lg text-center mt-4">
+            ❌ {error}
+          </p>
+        )}
       </div>
     </div>
   );
