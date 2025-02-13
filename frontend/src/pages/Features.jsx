@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Code, Wand2, Sparkles, ArrowRight, Globe } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Code, Wand2, Sparkles, ArrowRight, Globe } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Theme from "../components/Theme";
@@ -42,7 +42,7 @@ const RoadmapStep = ({ step, title, description, isActive, index }) => {
       {index < 4 && (
         <div className="absolute top-12 left-6 w-0.5 h-24 bg-gradient-to-b from-purple-600 to-violet-600 opacity-30" />
       )}
-      
+
       {/* Step Circle */}
       <motion.div
         whileHover={{ scale: 1.1 }}
@@ -50,7 +50,7 @@ const RoadmapStep = ({ step, title, description, isActive, index }) => {
       >
         <span className="text-white font-bold">{step}</span>
       </motion.div>
-      
+
       {/* Content */}
       <div className="flex-1 pb-12">
         <motion.div
@@ -68,13 +68,13 @@ const RoadmapStep = ({ step, title, description, isActive, index }) => {
 const Features = () => {
   const handleGetStarted = () => {
     // Handle navigation programmatically or through a callback
-    window.location.href = '/ai';
+    window.location.href = "/ai";
   };
 
   return (
     <div className="relative min-h-screen bg-[#0A0118] overflow-hidden">
-      <Theme/>
-      <Navbar/>
+      <Theme />
+      <Navbar />
       {/* Hero Section */}
       <div className="relative container mx-auto px-6 pt-24 pb-16">
         <motion.div
@@ -96,8 +96,8 @@ const Features = () => {
               How Bolt Works
             </h1>
             <p className="text-xl text-purple-200">
-              Transform your ideas into production-ready websites in minutes with our
-              AI-powered platform
+              Transform your ideas into production-ready websites in minutes
+              with our AI-powered platform
             </p>
           </motion.div>
         </motion.div>
@@ -148,7 +148,8 @@ const Features = () => {
             Ready to start building?
           </h2>
           <p className="text-xl mb-8 text-purple-200 max-w-2xl mx-auto">
-            Join thousands of creators who have already built their perfect website using Bolt.
+            Join thousands of creators who have already built their perfect
+            website using Bolt.
           </p>
           <motion.button
             onClick={handleGetStarted}
@@ -162,7 +163,7 @@ const Features = () => {
           </motion.button>
         </motion.div>
       </motion.div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

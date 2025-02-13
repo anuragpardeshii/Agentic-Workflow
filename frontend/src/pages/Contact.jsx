@@ -10,17 +10,16 @@ const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    message: ""
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/send-email", {
+      const response = await axios.post("http://localhost:3000/api/contact", {
         name: formData.name,
         email: formData.email,
         message: formData.message,
@@ -35,18 +34,17 @@ const ContactPage = () => {
     }
   };
 
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   return (
     <div className="min-h-screen bg-[#0A0118] flex flex-col">
-      <Theme/>
-      <Navbar/>
+      <Theme />
+      <Navbar />
       {/* Main Content */}
       <div className="relative flex-grow container mx-auto px-6 py-24">
         <motion.div
@@ -71,6 +69,7 @@ const ContactPage = () => {
                   whileFocus={{ scale: 1.01 }}
                   type="text"
                   name="name"
+                  placeholder="John Doe"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -83,6 +82,7 @@ const ContactPage = () => {
                   whileFocus={{ scale: 1.01 }}
                   type="email"
                   name="email"
+                  placeholder="johndoe@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -94,6 +94,7 @@ const ContactPage = () => {
                 <motion.textarea
                   whileFocus={{ scale: 1.01 }}
                   name="message"
+                  placeholder="Your message here..."
                   value={formData.message}
                   onChange={handleChange}
                   required
@@ -111,7 +112,11 @@ const ContactPage = () => {
                 {isSubmitting ? (
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
                   />
                 ) : (
@@ -126,7 +131,7 @@ const ContactPage = () => {
                   {error}
                 </div>
               )}
-              
+
               {/* Success Message */}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -143,7 +148,7 @@ const ContactPage = () => {
           </motion.div>
         </motion.div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

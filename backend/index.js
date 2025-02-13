@@ -8,6 +8,7 @@ import groqRoutes from "./routes/groq.js";
 import responsesRoutes from "./routes/responses.js";
 import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.js";
+import contactRoutes from "./routes/contact.js";
 
 dotenv.config();
 
@@ -85,6 +86,7 @@ app.use("/api/groq", groqRoutes);
 app.use("/api/responses", responsesRoutes);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/contact", contactRoutes);
 
 server.listen(PORT, () => {
   console.log(
