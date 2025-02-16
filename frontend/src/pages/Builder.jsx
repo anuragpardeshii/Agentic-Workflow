@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { Play, Bot, Rocket } from "lucide-react";
-import { motion } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { Play, Bot, Rocket, RefreshCw, Maximize2, Minimize2, Code, Eye } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import CodeEditor from "../components/CodeEditor";
 import { updateProject } from "../services/response";
 import Theme from "../components/Theme";
 
 const Builder = () => {
-  const storedPrompt = localStorage.getItem("prompt") || "";
-  const [input, setInput] = useState(storedPrompt);
-  const [content, setContent] = useState("");
+  const [input, setInput] = useState(localStorage.getItem("prompt") || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refreshEditor, setRefreshEditor] = useState(false);
+  const [currentView, setCurrentView] = useState("preview");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const editorRef = useRef(null);
 
-  const jsonData = localStorage.getItem("jsonData");
-  const parseJSON = jsonData ? JSON.parse(jsonData) : null;
+  const parseJSON = localStorage.getItem("jsonData") ? JSON.parse(localStorage.getItem("jsonData")) : null;
   const instructions = localStorage.getItem("instructions");
   const prevContent = localStorage.getItem("content") || "";
-  const location = window.location.href;
 
   const separateJsonAndText = (content) => {
     if (!content || typeof content !== "string") {
@@ -60,9 +59,7 @@ const Builder = () => {
         previousContent: prevContent,
       });
 
-      if (!response || !response.response.content) {
-        throw new Error("Invalid response from server");
-      }
+      if (!response?.response.content) throw new Error("Invalid response");
 
       localStorage.setItem("content", response.response.content);
       const parsedContent = separateJsonAndText(response.response.content);
@@ -71,37 +68,76 @@ const Builder = () => {
         localStorage.setItem("prompt", response.response.prompt);
         localStorage.setItem("jsonData", JSON.stringify(parsedContent.jsonData));
         localStorage.setItem("instructions", parsedContent.instructions);
+        
+        // Clear local storage saved files to ensure we use the new files
+        localStorage.removeItem('savedFiles');
+        
+        if (editorRef.current?.refreshFiles) {
+          const formattedFiles = {};
+          Object.entries(parsedContent.jsonData.files).forEach(([path, fileData]) => {
+            const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+            formattedFiles[normalizedPath] = typeof fileData.code === "object" 
+              ? JSON.stringify(fileData.code, null, 2) 
+              : fileData.code;
+          });
+          editorRef.current.refreshFiles(formattedFiles);
+        }
       } else {
-        setError("Invalid content format received");
+        setError("Invalid content format");
       }
 
-      setContent(localStorage.getItem("jsonData"));
-      setRefreshEditor((prev) => !prev);
+      setRefreshEditor(prev => !prev);
     } catch (error) {
-      setError(
-        error.response?.data?.error ||
-          error.message ||
-          "Failed to generate content"
-      );
+      setError(error.message || "Failed to generate content");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      generatingUpdatingContent();
+  const handleCompile = () => {
+    if (!editorRef.current?.getVm()) {
+      setError("Preview not ready");
+      return;
+    }
+
+    try {
+      const vm = editorRef.current.getVm();
+      const files = editorRef.current.getFiles();
+      
+      vm.getFsSnapshot().then(snapshot => {
+        const existingFiles = Object.keys(snapshot.files);
+        const currentFiles = Object.keys(files).map(f => f.startsWith('/') ? f : `/${f}`);
+        const filesToDestroy = existingFiles.filter(f => 
+          !currentFiles.includes(f) && 
+          !currentFiles.includes(f.startsWith('/') ? f.slice(1) : `/${f}`)
+        );
+        
+        const filesToCreate = {};
+        Object.entries(files).forEach(([path, content]) => {
+          filesToCreate[path] = content;
+        });
+        
+        vm.applyFsDiff({
+          create: filesToCreate,
+          destroy: filesToDestroy
+        });
+        
+        const currentJsonData = JSON.parse(localStorage.getItem("jsonData") || "{}");
+        if (currentJsonData?.files) {
+          currentJsonData.files = {};
+          Object.entries(files).forEach(([path, content]) => {
+            const pathWithSlash = "/" + path.replace(/^\//, "");
+            currentJsonData.files[pathWithSlash] = { code: content };
+          });
+          localStorage.setItem("jsonData", JSON.stringify(currentJsonData));
+        }
+        
+        localStorage.setItem("savedFiles", JSON.stringify(files));
+      });
+    } catch (error) {
+      setError("Compilation failed");
     }
   };
-
-  useEffect(() => {
-    if (location === "http://localhost:5173/ai") {
-      localStorage.removeItem("prompt");
-      localStorage.removeItem("jsonData");
-      localStorage.removeItem("instructions");
-      localStorage.removeItem("content");
-    }
-  }, []);
 
   if (!parseJSON) {
     return (
@@ -113,10 +149,12 @@ const Builder = () => {
 
   return (
     <div className="flex h-screen bg-[#0A0118]">
-      <Theme/>
-      <div className="relative flex w-full">
-        <div className="w-[30%] border-r border-purple-500/20 flex flex-col">
-          {/* Header with animated logo and deploy button */}
+      <Theme />
+      <div className="relative flex w-full p-4 gap-4">
+        <motion.div 
+          className="w-[30%] flex flex-col bg-[#0A0118]/90 backdrop-blur-lg rounded-xl border border-purple-500/20"
+          animate={{ width: isExpanded ? "0%" : "30%" }}
+        >
           <div className="p-4 border-b border-purple-500/20 flex items-center justify-between">
             <Link to="/ai" className="flex items-center space-x-2">
               <motion.div
@@ -127,70 +165,93 @@ const Builder = () => {
               </motion.div>
               <span className="text-xl font-bold text-white">bolt.old</span>
             </Link>
-            
-            <Link 
-              to="/deploy" 
-              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded-lg transition-colors duration-200"
-            >
-              <Rocket className="w-4 h-4 text-white" />
-              <span className="text-white text-sm">Deploy</span>
-            </Link>
           </div>
 
-          <div className="p-4 flex-1 overflow-y-auto">
-            <h2 className="text-sm font-medium text-purple-200 mb-4">
-              Instructions
-            </h2>
-            <div className="space-y-3">
-              <div>
-                <h4 className="text-white">{parseJSON.projectTitle}</h4>
+          <div className="flex-1 overflow-y-auto p-4">
+            <h2 className="text-sm font-medium text-purple-200 mb-4">Instructions</h2>
+            {instructions && (
+              <div className="space-y-3 text-purple-200">
+                {instructions.split("\n").map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
               </div>
-              <div>
-                {instructions && (
-                  <div className="space-y-3">
-                    {instructions.split("\n").map((line, index) => (
-                      <p key={index} className="text-purple-200">
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="p-4 border-t border-purple-500/20">
             <div className="flex items-center bg-purple-900/20 rounded-xl border border-purple-500/20 p-2">
-              <Play
-                className={`w-4 h-4 mr-2 ${
-                  isLoading
-                    ? "text-purple-400 cursor-not-allowed"
-                    : "text-purple-500 hover:text-purple-200 hover:cursor-pointer"
-                }`}
+              <Play 
+                className={`w-4 h-4 mr-2 ${isLoading ? "text-purple-400" : "text-purple-500 hover:text-purple-200 cursor-pointer"}`}
                 onClick={!isLoading ? generatingUpdatingContent : undefined}
               />
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyPress={(e) => e.key === "Enter" && generatingUpdatingContent()}
                 placeholder="Type a command or search..."
                 className="flex-1 bg-transparent border-none focus:outline-none text-purple-200 placeholder-purple-500"
                 disabled={isLoading}
               />
             </div>
             {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-            {isLoading && (
-              <p className="text-purple-400 text-sm mt-2">Generating content...</p>
-            )}
+            {isLoading && <p className="text-purple-400 text-sm mt-2">Generating content...</p>}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex-1 relative">
-          <div className="h-full bg-[#0A0118]">
-            <CodeEditor key={refreshEditor} json={parseJSON} />
+        <motion.div 
+          className="flex-1 relative"
+          animate={{ width: isExpanded ? "100%" : "70%" }}
+        >
+          {/* Fixed Header with Actions */}
+          <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-2 z-10 bg-[#0A0118]/60 backdrop-blur-sm rounded-t-xl">
+            <div className="flex gap-2">
+              <button 
+                onClick={handleCompile}
+                className="flex items-center gap-1 px-3 py-1.5 bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 rounded-lg border border-purple-500/20"
+                disabled={isLoading}
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Compile</span>
+              </button>
+              <Link 
+                to="/deploy" 
+                className="flex items-center gap-1 px-3 py-1.5 bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 rounded-lg border border-purple-500/20"
+              >
+                <Rocket className="w-4 h-4" />
+                <span>Deploy</span>
+              </Link>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setCurrentView(v => v === "preview" ? "editor" : "preview")} 
+                className="icon-btn"
+                title={currentView === "preview" ? "Switch to Editor" : "Switch to Preview"}
+              >
+                {currentView === "preview" ? <Code className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)} 
+                className="icon-btn"
+                title={isExpanded ? "Minimize" : "Maximize"}
+              >
+                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
-        </div>
+          
+          <div className="h-full bg-[#0A0118]/90 backdrop-blur-lg rounded-xl border border-purple-500/20 overflow-hidden">
+            <div className="h-full pt-12"> {/* Added padding top to account for header */}
+              <CodeEditor 
+                key={refreshEditor} 
+                json={parseJSON} 
+                ref={editorRef}
+                currentView={currentView}
+                isExpanded={isExpanded}
+              />
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

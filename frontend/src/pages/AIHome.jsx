@@ -86,6 +86,7 @@ function AIHome() {
       localStorage.removeItem("jsonData");
       localStorage.removeItem("instructions");
       localStorage.removeItem("content");
+      localStorage.removeItem("savedFiles");
     }
   }, [getResponse, navigate]);
 
