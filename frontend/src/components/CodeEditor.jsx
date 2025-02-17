@@ -115,6 +115,7 @@ const CodeEditor = forwardRef(({ json, currentView, isExpanded }, ref) => {
         {
           height: "100%",
           openFile: "src/App.js",
+          view: "preview",
         }
       ).then(vm => setVmRef(vm));
     } catch (error) {

@@ -15,7 +15,7 @@ const Footer = () => {
             >
               <Bot className="w-6 h-6 text-purple-400" />
             </motion.div>
-            <span className="font-bold text-white">bolt.old</span>
+            <span className="font-bold text-white">Velo.ai</span>
           </div>
           <div className="flex space-x-6">
             <a

@@ -23,7 +23,6 @@ function App() {
         <Route element={<ProtectedRoute />} >
           <Route path="/ai" element={<AIHome />} />
           <Route path="/builder" element={<Builder />} />
-          <Route path="/editor" element={<CodeEditor />} />
           <Route path="/deploy" element={<Deploy />} />
         </Route>
 
