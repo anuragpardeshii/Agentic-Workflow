@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { TextInput } from "flowbite-react";
-import { Wand2, Sparkles, Code2, Globe, Shapes, LogOut } from "lucide-react";
+import { Wand2, Sparkles, Globe, Shapes, LogOut } from "lucide-react";
 import { generateResponse } from "../services/api";
 import { useAuth } from "../components/AuthContext.jsx";
 import Theme from "../components/Theme.jsx";
@@ -16,11 +16,10 @@ function AIHome() {
   const { logout } = useAuth();
 
   const examplePrompts = [
-    "Build a modern blog with dark mode",
-    "Design a landing page for a SaaS product",
-    "Make an e-commerce store for artisanal coffee",
-    "Create a personal photography showcase",
-    "Create a portfolio website",
+    "Build a simple to-do list app",
+    "Make a counter app with increment and decrement buttons",
+    "Design a note-taking app with local storage",
+    "Create a random quote generator",
   ];
 
   useEffect(() => {
@@ -81,7 +80,9 @@ function AIHome() {
   useEffect(() => {
     if (getResponse !== null) {
       navigate("/builder");
-    } else if (window.location.href === "https://agentic-workflow-ftb9.onrender.com/ai") {
+    } else if (
+      window.location.href === "https://agentic-workflow-ftb9.onrender.com/ai"
+    ) {
       localStorage.removeItem("prompt");
       localStorage.removeItem("jsonData");
       localStorage.removeItem("instructions");
@@ -122,7 +123,7 @@ function AIHome() {
 
   return (
     <div className="relative min-h-screen bg-[#0A0118] overflow-hidden">
-      <Theme/>
+      <Theme />
       {/* Custom cursor glow effect */}
       <motion.div
         className="fixed w-64 h-64 rounded-full pointer-events-none"
@@ -165,9 +166,7 @@ function AIHome() {
               className="flex justify-center space-x-4 mb-8"
               variants={floatingIcons}
             >
-              <Code2 className="w-8 h-8 text-purple-400" />
-              <Globe className="w-8 h-8 text-purple-300" />
-              <Shapes className="w-8 h-8 text-purple-500" />
+              <img src="/ai.png" alt="AI Logo" className="w-16 h-16" />
             </motion.div>
 
             <h1 className="text-6xl font-bold gradient-text">

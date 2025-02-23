@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../components/AuthContext.jsx";
-import { motion } from "framer-motion";
-import Theme from "../components/Theme.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
+import Theme from "../components/Theme.jsx";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -17,15 +16,16 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://agentic-workflow-ftb9.onrender.com/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
+      const response = await fetch(
+        "https://agentic-workflow-ftb9.onrender.com/api/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password }),
+        }
+      );
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.error);
-
       login(data.token);
       navigate("/ai");
     } catch (err) {
@@ -34,66 +34,102 @@ const Register = () => {
   };
 
   return (
-    <div className="h-screen bg-[#0A0118] flex flex-col">
-      <Navbar/>
-    <div className="h-full bg-[#0A0118] flex items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-[#0A0118]">
+      <Navbar />
       <Theme />
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }} 
-        animate={{ opacity: 1, scale: 1 }} 
-        transition={{ duration: 0.5 }}
-        className="bg-purple-900/20 p-8 rounded-xl border border-purple-500/20 w-full max-w-md shadow-lg relative z-10"
-      >
-        <h2 className="text-3xl font-bold mb-6 text-white text-center gradient-text">
-          Register
-        </h2>
-        {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 mb-4">{error}</motion.p>}
-        <form onSubmit={handleSubmit}>
-          <motion.input
-            whileFocus={{ scale: 1.05 }}
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full mb-4 p-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          />
-          <motion.input
-            whileFocus={{ scale: 1.05 }}
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mb-4 p-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          />
-          <motion.input
-            whileFocus={{ scale: 1.05 }}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-6 p-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          />
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg transition-colors shadow-md"
-          >
-            Register
-          </motion.button>
-        </form>
-        <p className="mt-4 text-purple-200 text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-purple-400 hover:text-purple-300">
-            Login here
-          </Link>
-        </p>
-      </motion.div>
-    </div>
-    <Footer/>
+      <div className="flex min-h-[calc(90vh-8rem)]">
+        {/* Left Side - Content */}
+        <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center relative">
+          <h1 className="text-5xl font-bold text-white mb-6 gradient-text">
+            Build Your Vision
+          </h1>
+          <p className="text-xl text-purple-200 mb-8">
+            Create an account to start building stunning websites with AI.
+            Transform your ideas into reality with our innovative platform.
+          </p>
+          <div className="absolute bottom-12 left-12">
+            <Link
+              to="/login"
+              className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
+            >
+              Already have an account?
+              <span className="ml-2 underline">Log in</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+          <div className="w-full max-w-md">
+            <div className="bg-purple-900/20 p-8 rounded-2xl border border-purple-500/20 backdrop-blur-lg">
+              <h2 className="text-2xl font-bold text-white mb-8 gradient-text">
+                Create Account
+              </h2>
+              {error && <p className="text-red-400 mb-4">{error}</p>}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="johndoe"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="name@example.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                >
+                  Create Account
+                </button>
+              </form>
+              <Link
+                to="/login"
+                className="text-purple-400 hover:text-purple-300"
+              >
+                <div className="mt-6 text-center lg:hidden">
+                  Already have an account? Log in
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 };

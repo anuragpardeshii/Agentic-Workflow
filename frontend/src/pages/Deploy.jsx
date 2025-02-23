@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bot, Rocket, ArrowRight } from "lucide-react";
+import { Rocket, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
@@ -33,7 +33,10 @@ const Deploy = () => {
 
       const filesArray = Object.entries(files).map(([filePath, fileObj]) => ({
         file: filePath.replace(/^\//, ""),
-        data: typeof fileObj.code === "string" ? fileObj.code : JSON.stringify(fileObj.code),
+        data:
+          typeof fileObj.code === "string"
+            ? fileObj.code
+            : JSON.stringify(fileObj.code),
       }));
 
       if (!filesArray.length) {
@@ -73,25 +76,18 @@ const Deploy = () => {
   return (
     <div className="min-h-screen bg-[#0A0118] overflow-hidden">
       <div className="p-4 border-b border-purple-500/20">
-            <Link to="/ai" className="flex items-center space-x-2">
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Bot className="w-8 h-8 text-purple-400" />
-              </motion.div>
-              <span className="text-xl font-bold text-white">BuildFast.new</span>
-            </Link>
-        </div>
-    
-      <Theme/>
+        <Link to="/ai" className="flex items-center space-x-2">
+          <img src="/ai.png" alt="AI Logo" className="w-8 h-8" />
+          <span className="text-xl font-bold text-white">Buildfast.ai</span>
+        </Link>
+      </div>
+
+      <Theme />
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)] p-4">
         <div className="bg-purple-900/20 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 w-full max-w-lg">
           <div className="flex items-center justify-center space-x-3 mb-6">
             <Rocket className="w-8 h-8 text-purple-400" />
-            <h2 className="text-3xl font-bold text-white">
-              Deploy to Vercel
-            </h2>
+            <h2 className="text-3xl font-bold text-white">Deploy to Vercel</h2>
           </div>
 
           {/* Instructions */}
@@ -165,7 +161,7 @@ const Deploy = () => {
         </div>
       </div>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 };
