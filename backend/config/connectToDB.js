@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const connectDB = async (retries = 5, delay = 5000) => {
+export const connectDB = async (retries = 5, delay = 3000) => {
   for (let i = 0; i < retries; i++) {
     try {
       await mongoose.connect(process.env.MONGO_URI);

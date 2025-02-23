@@ -32,10 +32,10 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+const allowedOrigins = process.env.ALLOWED_ORIGINS;
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: allowedOrigins || `http://localhost:${PORT}`,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -44,6 +44,7 @@ const io = new Server(server, {
 app.use(
   cors({
     origin: allowedOrigins,
+    origin: allowedOrigins || `http://localhost:${PORT}`,
     credentials: true,
   })
 );
