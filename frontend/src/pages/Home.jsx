@@ -129,7 +129,7 @@ function App() {
         >
           Everything you need to build faster
         </motion.h2>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
           {[
             {
               icon: <Wand2 className="w-6 h-6 text-purple-400" />,
@@ -154,9 +154,9 @@ function App() {
               key={index}
               variants={fadeIn}
               whileHover={{ scale: 1.05 }}
-              className="bg-purple-900/20 p-8 rounded-xl border border-purple-500/20 backdrop-blur-sm"
+              className="bg-purple-900/20 p-8 rounded-xl shadow-2xl backdrop-blur-sm"
             >
-              <motion.div whileHover={{ scale: 1.1 }} className="mb-4">
+              <motion.div className="mb-4">
                 {feature.icon}
               </motion.div>
               <h3 className="text-xl font-semibold mb-4 text-white">
@@ -177,7 +177,7 @@ function App() {
       >
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="bg-gradient-to-r from-purple-900/30 via-violet-900/30 to-purple-900/30 rounded-2xl p-12 text-center border border-purple-500/20 backdrop-blur-sm"
+          className="max-w-6xl mx-auto bg-gradient-to-r from-purple-900/30 via-violet-900/30 to-purple-900/30 rounded-2xl p-12 text-center shadow-2xl backdrop-blur-sm"
         >
           <h2 className="text-4xl font-bold mb-6 text-white">
             Ready to start building?
@@ -186,6 +186,7 @@ function App() {
             Join thousands of creators who have already built their perfect
             website using AIBuilder.
           </p>
+          <Link to="/ai">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -197,6 +198,7 @@ function App() {
             </Link>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </motion.button>
+          </Link>
         </motion.div>
       </motion.div>
       <Footer/>

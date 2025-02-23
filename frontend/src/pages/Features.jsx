@@ -142,14 +142,14 @@ const Features = () => {
       >
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="bg-gradient-to-r from-purple-900/30 via-violet-900/30 to-purple-900/30 rounded-2xl p-12 text-center border border-purple-500/20 backdrop-blur-sm"
+          className="max-w-6xl mx-auto bg-gradient-to-r from-purple-900/30 via-violet-900/30 to-purple-900/30 rounded-2xl p-12 text-center border border-purple-500/20 backdrop-blur-sm"
         >
           <h2 className="text-4xl font-bold mb-6 text-white">
             Ready to start building?
           </h2>
           <p className="text-xl mb-8 text-purple-200 max-w-2xl mx-auto">
             Join thousands of creators who have already built their perfect
-            website using Bolt.
+            website using BuildFast.
           </p>
           <motion.button
             onClick={handleGetStarted}

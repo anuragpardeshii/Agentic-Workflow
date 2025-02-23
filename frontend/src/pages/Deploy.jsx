@@ -80,7 +80,7 @@ const Deploy = () => {
               >
                 <Bot className="w-8 h-8 text-purple-400" />
               </motion.div>
-              <span className="text-xl font-bold text-white">bolt.old</span>
+              <span className="text-xl font-bold text-white">BuildFast.new</span>
             </Link>
         </div>
     
