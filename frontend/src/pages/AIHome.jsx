@@ -81,7 +81,7 @@ function AIHome() {
   useEffect(() => {
     if (getResponse !== null) {
       navigate("/builder");
-    } else if (window.location.href === "https://agentic-workflow-708v.onrender.com/ai") {
+    } else if (window.location.href === "https://agentic-workflow-ftb9.onrender.com/ai") {
       localStorage.removeItem("prompt");
       localStorage.removeItem("jsonData");
       localStorage.removeItem("instructions");

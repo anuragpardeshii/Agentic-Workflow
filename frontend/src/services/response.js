@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://agentic-workflow-708v.onrender.com/api";
+const API_URL = "https://agentic-workflow-ftb9.onrender.com/api";
 
 export const getResponseById = async (id) => {
   try {
