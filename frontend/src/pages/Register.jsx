@@ -37,7 +37,7 @@ const Register = () => {
     <div className="min-h-screen bg-[#0A0118]">
       <Navbar />
       <Theme />
-      <div className="flex min-h-[calc(90vh-8rem)]">
+      <div className="flex max-w-7xl mx-auto min-h-[calc(90vh-8rem)]">
         {/* Left Side - Content */}
         <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center relative">
           <h1 className="text-5xl font-bold text-white mb-6 gradient-text">
@@ -47,21 +47,20 @@ const Register = () => {
             Create an account to start building stunning websites with AI.
             Transform your ideas into reality with our innovative platform.
           </p>
-          <div className="absolute bottom-12 left-12">
-            <Link
-              to="/login"
+          <div className="">
+            <p
               className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
             >
               Already have an account?
-              <span className="ml-2 underline">Log in</span>
-            </Link>
+              <span className="ml-2 underline"><Link to="/login">Log in</Link></span>
+            </p>
           </div>
         </div>
 
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md">
-            <div className="bg-purple-900/20 p-8 rounded-2xl border border-purple-500/20 backdrop-blur-lg">
+            <div className="bg-purple-900/20 p-8 rounded-2xl shadow-6xl backdrop-blur-lg">
               <h2 className="text-2xl font-bold text-white mb-8 gradient-text">
                 Create Account
               </h2>
@@ -76,7 +75,7 @@ const Register = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-none shadow-4xl text-white focus:ring-2 focus:ring-purple-800 focus:border-purple-800"
                     placeholder="johndoe"
                     required
                   />
@@ -90,7 +89,7 @@ const Register = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-none shadow-4xl text-white focus:ring-2 focus:ring-purple-800 focus:border-purple-800"
                     placeholder="name@example.com"
                     required
                   />
@@ -104,7 +103,7 @@ const Register = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-none shadow-4xl text-white focus:ring-2 focus:ring-purple-800 focus:border-purple-800"
                     placeholder="••••••••"
                     required
                   />
@@ -117,14 +116,6 @@ const Register = () => {
                   Create Account
                 </button>
               </form>
-              <Link
-                to="/login"
-                className="text-purple-400 hover:text-purple-300"
-              >
-                <div className="mt-6 text-center lg:hidden">
-                  Already have an account? Log in
-                </div>
-              </Link>
             </div>
           </div>
         </div>

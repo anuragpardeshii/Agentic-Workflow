@@ -37,7 +37,7 @@ const Login = () => {
     <div className="min-h-screen bg-[#0A0118]">
       <Navbar />
       <Theme />
-      <div className="flex min-h-[calc(90vh-8rem)]">
+      <div className="flex max-w-7xl mx-auto min-h-[calc(90vh-8rem)]">
         {/* Left Side - Content */}
         <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center relative">
           <h1 className="text-5xl font-bold text-white mb-6 gradient-text">
@@ -47,7 +47,14 @@ const Login = () => {
             Log in to explore the power of AI-driven website creation. Build
             stunning websites effortlessly with our cutting-edge technology.
           </p>
-          <div className="absolute bottom-12 left-12">
+             <p  
+                  className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
+                >
+                  Don't have an account? <Link className="underline" to="/register" >Sign up
+                </Link>
+                </p>
+              
+          {/* <div className="absolute bottom-12 left-12">
             <Link
               to="/register"
               className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
@@ -55,12 +62,12 @@ const Login = () => {
               Don't have an account?
               <span className="ml-2 underline">Sign up</span>
             </Link>
-          </div>
+          </div> */}
         </div>
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md">
-            <div className="bg-purple-900/20 p-8 rounded-2xl border border-purple-500/20 backdrop-blur-lg">
+            <div className="bg-purple-900/20 p-8 rounded-2xl shadow-2xl backdrop-blur-lg">
               <h2 className="text-2xl font-bold text-white mb-8 gradient-text">
                 Login
               </h2>
@@ -75,7 +82,7 @@ const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-none shadow-2xl text-white focus:ring-2 focus:ring-purple-900 focus:border-purple-700"
                     placeholder="name@example.com"
                     required
                   />
@@ -89,7 +96,7 @@ const Login = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-purple-500/30 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-3 rounded-lg bg-purple-800/20 border border-none shadow-2xl text-white focus:ring-2 focus:ring-purple-900 focus:border-purple-700"
                     placeholder="••••••••"
                     required
                   />
@@ -103,14 +110,7 @@ const Login = () => {
                 </button>
               </form>
 
-              <div className="mt-6 text-center lg:hidden">
-                <Link
-                  to="/register"
-                  className="text-purple-400 hover:text-purple-300"
-                >
-                  Don't have an account? Sign up
-                </Link>
-              </div>
+              
             </div>
           </div>
         </div>
