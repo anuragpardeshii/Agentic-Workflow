@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch("http://localhost:3000/api/auth/validate", {
+      const response = await fetch("https://agentic-workflow-708v.onrender.com/api/auth/validate", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/auth/refresh-token",
+        "https://agentic-workflow-708v.onrender.com/api/auth/refresh-token",
         {
           method: "POST",
           headers: {

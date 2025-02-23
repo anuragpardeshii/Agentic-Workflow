@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "https://agentic-workflow-708v.onrender.com/api";
 
 export const generateResponse = async (prompt) => {
   try {
