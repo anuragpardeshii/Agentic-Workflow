@@ -16,14 +16,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "https://agentic-workflow-ftb9.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       login(data.token);
@@ -47,13 +44,13 @@ const Login = () => {
             Log in to explore the power of AI-driven website creation. Build
             stunning websites effortlessly with our cutting-edge technology.
           </p>
-             <p  
-                  className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
-                >
-                  Don't have an account? <Link className="underline" to="/register" >Sign up
-                </Link>
-                </p>
-              
+          <p className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors">
+            Don't have an account?{" "}
+            <Link className="underline" to="/register">
+              Sign up
+            </Link>
+          </p>
+
           {/* <div className="absolute bottom-12 left-12">
             <Link
               to="/register"
@@ -109,8 +106,6 @@ const Login = () => {
                   Login
                 </button>
               </form>
-
-              
             </div>
           </div>
         </div>

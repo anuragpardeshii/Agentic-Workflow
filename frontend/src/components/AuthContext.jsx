@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch("https://agentic-workflow-ftb9.onrender.com/api/auth/validate", {
+      const response = await fetch("/api/auth/validate", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -33,16 +33,13 @@ export function AuthProvider({ children }) {
     if (!refreshToken) return null;
 
     try {
-      const response = await fetch(
-        "https://agentic-workflow-ftb9.onrender.com/api/auth/refresh-token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ refreshToken }),
-        }
-      );
+      const response = await fetch("/api/auth/refresh-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
 
       if (!response.ok) throw new Error("Token refresh failed");
 

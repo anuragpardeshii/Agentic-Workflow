@@ -16,14 +16,11 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "https://agentic-workflow-ftb9.onrender.com/api/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, email, password }),
-        }
-      );
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       login(data.token);
@@ -48,11 +45,11 @@ const Register = () => {
             Transform your ideas into reality with our innovative platform.
           </p>
           <div className="">
-            <p
-              className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors"
-            >
+            <p className="text-purple-300 hover:text-purple-200 text-lg font-medium transition-colors">
               Already have an account?
-              <span className="ml-2 underline"><Link to="/login">Log in</Link></span>
+              <span className="ml-2 underline">
+                <Link to="/login">Log in</Link>
+              </span>
             </p>
           </div>
         </div>
