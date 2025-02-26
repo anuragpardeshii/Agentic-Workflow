@@ -34,6 +34,9 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
+app.get("/", (req, res) => {
+  res.send("Backend is running!");
+});
 app.use("/api/", limiter);
 app.use("/api/groq", groqRoutes);
 app.use("/api/responses", responsesRoutes);
