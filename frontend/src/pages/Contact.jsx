@@ -19,7 +19,7 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/contact", {
+      const response = await axios.post("https://agentic-backend-psi.vercel.app/api/contact", {
         name: formData.name,
         email: formData.email,
         message: formData.message,

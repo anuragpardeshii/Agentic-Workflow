@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch("/api/auth/validate", {
+      const response = await fetch("https://agentic-backend-psi.vercel.app/api/auth/validate", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
     if (!refreshToken) return null;
 
     try {
-      const response = await fetch("/api/auth/refresh-token", {
+      const response = await fetch("https://agentic-backend-psi.vercel.app/api/auth/refresh-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

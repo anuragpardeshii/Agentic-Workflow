@@ -6,13 +6,5 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    server: {
-      proxy: {
-        "/api": {
-          target: "https://agentic-backend-psi.vercel.app",
-          changeOrigin: true,
-        },
-      },
-    },
   };
 });

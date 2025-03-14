@@ -49,7 +49,7 @@ const Deploy = () => {
         projectSettings: { framework: "create-react-app" },
       };
 
-      const response = await fetch("https://api.vercel.com/v13/deployments", {
+      const response = await fetch("https://agentic-backend-psi.vercel.app/api.vercel.com/v13/deployments", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${vercelToken}`,
