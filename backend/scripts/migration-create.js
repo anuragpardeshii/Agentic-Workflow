@@ -1,0 +1,10 @@
+import { writeFile } from 'node:fs/promises';
+import { loadMigrations, migrationDirectory } from '../services/migrations.js';
+const name = process.argv[2];
+if (!name || !/^[a-z][a-z0-9_]*$/.test(name)) throw new Error('Use a snake_case name: npm run migrate:create -- add_project_tags');
+const migrations = await loadMigrations();
+const version = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+if (migrations.some(m => m.version >= version)) throw new Error('Wait until the next second; new migration versions must sort after existing files.');
+const file = `${version}_${name}.js`;
+await writeFile(new URL(file, migrationDirectory), `// Version ${version}. Applied files are immutable.\n// Use idempotent operations so an interrupted run can safely retry.\nexport async function up(db) {\n  void db;\n  throw new Error('Implement ${name} before running this migration');\n}\n`, { flag: 'wx' });
+console.log(`Created migrations/${file}`);

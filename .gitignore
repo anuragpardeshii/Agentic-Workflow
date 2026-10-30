@@ -1,5 +1,8 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+coverage/
 .DS_Store
-node_modules
-package-lock.json
-package.json
-.gitignore
+*.log

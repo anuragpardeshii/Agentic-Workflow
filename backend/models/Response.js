@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
 
 const responseSchema = new mongoose.Schema({
+  schemaVersion: { type: Number, default: 1, required: true },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true,
+  },
   content: {
     type: String,
     required: true,

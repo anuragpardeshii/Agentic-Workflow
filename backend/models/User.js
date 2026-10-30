@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+  schemaVersion: { type: Number, default: 2, required: true },
+  activeAiConnection: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AIConnection",
+    default: null,
+  },
   username: {
     type: String,
     required: true,

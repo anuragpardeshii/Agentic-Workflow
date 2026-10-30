@@ -1,0 +1,10 @@
+{
+  "name": "buildfast-workspace",
+  "private": true,
+  "scripts": {
+    "install:all": "npm ci --prefix backend && npm ci --prefix frontend",
+    "dev": "docker compose --profile local-ai up --build",
+    "check": "npm run lint --prefix frontend && npm test --prefix frontend && npm run build --prefix frontend && npm test --prefix backend",
+    "build": "npm run build --prefix frontend"
+  }
+}

@@ -1,156 +1,138 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Send } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import Theme from "../components/Theme";
-import axios from "axios";
-
-const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+import { useState } from "react";
+import { ArrowRight, MessageCircle, Lightbulb, LifeBuoy } from "lucide-react";
+import PageIntro from "../components/PageIntro";
+import Layout from "../components/Layout";
+import { api } from "../services/api";
+export default function Contact() {
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState(""),
+    [success, setSuccess] = useState("");
+  async function submit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setBusy(true);
+    setError("");
+    setSuccess("");
     try {
-      const response = await axios.post("https://agentic-backend-psi.vercel.app/api/contact", {
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
+      const result = await api("/contact", {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
       });
-      setFormData({
-        email: "",
-        name: "",
-        message: "",
-      });
-    } catch (error) {
-      throw error;
+      setSuccess(result.message);
+      form.reset();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
     }
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
+  }
   return (
-    <div className="min-h-screen bg-[#0A0118] flex flex-col">
-      <Theme />
-      <Navbar />
-      {/* Main Content */}
-      <div className="relative flex-grow container mx-auto px-6 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-2xl mx-auto"
-        >
-          <h1 className="text-4xl font-bold text-center mb-8 text-white">
-            Get in Touch
-          </h1>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="bg-purple-900/20 p-8 rounded-xl border border-purple-500/20 backdrop-blur-sm relative"
-          >
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-purple-200 mb-2">Name</label>
-                <motion.input
-                  whileFocus={{ scale: 1.01 }}
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 rounded-lg bg-purple-900/30 border border-purple-500/30 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-purple-200 mb-2">Email</label>
-                <motion.input
-                  whileFocus={{ scale: 1.01 }}
-                  type="email"
-                  name="email"
-                  placeholder="johndoe@gmail.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 rounded-lg bg-purple-900/30 border border-purple-500/30 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-purple-200 mb-2">Message</label>
-                <motion.textarea
-                  whileFocus={{ scale: 1.01 }}
-                  name="message"
-                  placeholder="Your message here..."
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                  className="w-full px-4 py-2 rounded-lg bg-purple-900/30 border border-purple-500/30 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                />
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white px-6 py-3 rounded-lg font-medium text-lg flex items-center justify-center space-x-2 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                  />
-                ) : (
-                  <>
-                    <span>Send Message</span>
-                    <Send className="w-5 h-5" />
-                  </>
-                )}
-              </motion.button>
-              {error && (
-                <div className="bg-red-500/20 text-red-300 px-4 py-2 rounded-lg border border-red-500/30">
-                  {error}
-                </div>
-              )}
-
-              {/* Success Message */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: submitted ? 1 : 0 }}
-                className="absolute top-4 right-4"
-              >
-                {submitted && (
-                  <div className="bg-green-500/20 text-green-300 px-4 py-2 rounded-lg border border-green-500/30">
-                    Message sent successfully!
+    <Layout>
+      <div className="product-page">
+        <div className="landing-container">
+          <PageIntro
+            eyebrow="LET’S TALK"
+            title={
+              <>
+                Good things start
+                <br />
+                <span>with a conversation.</span>
+              </>
+            }
+            description="A question, a fresh idea, or a detail we could make better. We’d love to hear from you."
+          />
+          <section className="contact-grid">
+            <aside className="contact-notes">
+              <span className="section-number">A LITTLE HUMAN CONNECTION</span>
+              <h2>What’s on your mind?</h2>
+              {[
+                [
+                  LifeBuoy,
+                  "A helping hand",
+                  "Tell us where you got stuck and what you were trying to create.",
+                ],
+                [
+                  Lightbulb,
+                  "A spark of an idea",
+                  "Share a feature you’d love to see in your workspace.",
+                ],
+                [
+                  MessageCircle,
+                  "Something else entirely",
+                  "Feedback, a collaboration, or just a hello. There’s room for it here.",
+                ],
+              ].map(([Icon, title, text]) => (
+                <div key={title} className="contact-note">
+                  <Icon size={19} />
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{text}</p>
                   </div>
-                )}
-              </motion.div>
+                </div>
+              ))}
+            </aside>
+            <form
+              className="product-form contact-form"
+              onSubmit={submit}
+              aria-busy={busy}
+            >
+              <h2>Send a little note.</h2>
+              <p className="form-description">
+                Leave your email so we can get back to you.
+              </p>
+              <label className="field">
+                Your name
+                <input
+                  name="name"
+                  placeholder="Alex Morgan"
+                  required
+                  minLength={2}
+                  maxLength={100}
+                  autoComplete="name"
+                  disabled={busy}
+                />
+              </label>
+              <label className="field">
+                Email address
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  autoComplete="email"
+                  disabled={busy}
+                />
+              </label>
+              <label className="field">
+                Your message
+                <textarea
+                  name="message"
+                  placeholder="I’d love to talk about…"
+                  required
+                  minLength={10}
+                  maxLength={5000}
+                  rows={5}
+                  disabled={busy}
+                />
+              </label>
+              {error && (
+                <p className="error" role="alert">
+                  {error}
+                </p>
+              )}
+              {success && (
+                <p className="success-note" role="status">
+                  {success}
+                </p>
+              )}
+              <button className="landing-button" disabled={busy}>
+                {busy ? "Sending…" : "Send message"}
+                <ArrowRight size={16} />
+              </button>
             </form>
-          </motion.div>
-        </motion.div>
+          </section>
+        </div>
       </div>
-      <Footer />
-    </div>
+    </Layout>
   );
-};
-
-export default ContactPage;
+}

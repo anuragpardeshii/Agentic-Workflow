@@ -1,52 +1,23 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import http from "http";
-import { connectDB } from "./config/connectToDB.js";
-import groqRoutes from "./routes/groq.js";
-import responsesRoutes from "./routes/responses.js";
-import rateLimit from "express-rate-limit";
-import authRoutes from "./routes/auth.js";
-import contactRoutes from "./routes/contact.js";
-
-dotenv.config();
-
-const app = express();
-const server = http.createServer(app);
-const PORT = process.env.PORT || 3000;
-
-connectDB();
-
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+import "dotenv/config";
+import mongoose from "mongoose";
+import { loadMigrations, migrate } from "./services/migrations.js";
+import { app } from "./app.js";
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32)
+  throw new Error("JWT_SECRET must contain at least 32 characters");
+if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required");
+await mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 10000,
+  autoIndex: false,
+});
+await migrate(mongoose.connection.db, await loadMigrations());
+const server = app.listen(process.env.PORT || 3000, () =>
+  console.log("API ready"),
 );
-
-app.use(express.json({ limit: "1mb" }));
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests from this IP, please try again later.",
-});
-
-app.get("/", (req, res) => {
-  res.send("Backend is running!");
-});
-app.use("/api/", limiter);
-app.use("/api/groq", groqRoutes);
-app.use("/api/responses", responsesRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/contact", contactRoutes);
-
-server.listen(PORT, () => {
-  console.log(
-    `Server running on port http://localhost:${PORT} in ${
-      process.env.NODE_ENV || "development"
-    } mode`
-  );
-});
+for (const signal of ["SIGINT", "SIGTERM"])
+  process.on(signal, () => {
+    server.close(async () => {
+      await mongoose.disconnect();
+      process.exit(0);
+    });
+    setTimeout(() => process.exit(1), 10000).unref();
+  });

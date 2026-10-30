@@ -1,169 +1,239 @@
-import React, { useState } from "react";
-import { Rocket, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import Footer from "../components/Footer";
-import Theme from "../components/Theme";
-
-const Deploy = () => {
-  const [loading, setLoading] = useState(false);
-  const [deploymentUrl, setDeploymentUrl] = useState(null);
-  const [error, setError] = useState(null);
-  const [vercelToken, setVercelToken] = useState("");
-
-  const deployToVercel = async () => {
-    try {
-      setLoading(true);
-      setDeploymentUrl(null);
-      setError(null);
-
-      if (!vercelToken.trim()) {
-        throw new Error("Please enter your Vercel access token.");
-      }
-
-      // Retrieve project data from localStorage
-      const jsonData = JSON.parse(localStorage.getItem("jsonData"));
-
-      if (!jsonData || !jsonData.files) {
-        throw new Error("No project data found in localStorage.");
-      }
-
-      const projectTitle = jsonData.projectTitle || "default-project";
-      const files = jsonData.files;
-
-      const filesArray = Object.entries(files).map(([filePath, fileObj]) => ({
-        file: filePath.replace(/^\//, ""),
-        data:
-          typeof fileObj.code === "string"
-            ? fileObj.code
-            : JSON.stringify(fileObj.code),
-      }));
-
-      if (!filesArray.length) {
-        throw new Error("No files available to deploy.");
-      }
-
-      const payload = {
-        files: filesArray,
-        name: projectTitle.toLowerCase().replace(/\s+/g, "-"),
-        projectSettings: { framework: "create-react-app" },
-      };
-
-      const response = await fetch("https://agentic-backend-psi.vercel.app/api.vercel.com/v13/deployments", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${vercelToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Deployment failed: ${response.status} - ${errorText}`);
-      }
-
-      const responseData = await response.json();
-      setDeploymentUrl(responseData.url);
-    } catch (error) {
-      console.error("❌ Deployment error:", error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0A0118] overflow-hidden">
-      <div className="p-4 border-b border-purple-500/20">
-        <Link to="/ai" className="flex items-center space-x-2">
-          <img src="/ai.png" alt="AI Logo" className="w-8 h-8" />
-          <span className="text-xl font-bold text-white">Buildfast.ai</span>
-        </Link>
-      </div>
-
-      <Theme />
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)] p-4">
-        <div className="bg-purple-900/20 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 w-full max-w-lg">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <Rocket className="w-8 h-8 text-purple-400" />
-            <h2 className="text-3xl font-bold text-white">Deploy to Vercel</h2>
-          </div>
-
-          {/* Instructions */}
-          <div className="bg-purple-900/30 border border-purple-500/30 p-4 rounded-lg text-purple-200 mb-6">
-            <h3 className="text-lg font-semibold text-white mb-2">
-              How to Get a Vercel Access Token:
-            </h3>
-            <ol className="list-decimal list-inside space-y-2">
-              <li>
-                Go to{" "}
-                <a
-                  href="https://vercel.com/account/tokens"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-400 hover:text-purple-300 underline"
-                >
-                  Vercel Tokens
-                </a>
-              </li>
-              <li>Click "Create Token" and give it a name</li>
-              <li>Copy the generated token and paste it below</li>
-            </ol>
-          </div>
-
-          {/* Token Input */}
-          <input
-            type="text"
-            placeholder="Enter your Vercel Access Token"
-            value={vercelToken}
-            onChange={(e) => setVercelToken(e.target.value)}
-            className="w-full p-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:border-purple-500 mb-4"
-          />
-
-          {/* Deploy Button */}
-          <button
-            onClick={deployToVercel}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium px-6 py-3 rounded-xl flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Deploy Now</span>
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
-
-          {/* Success Message */}
-          {deploymentUrl && (
-            <div className="mt-4 p-4 bg-green-900/20 border border-green-500/30 text-green-300 text-center rounded-lg">
-              ✨ Deployment Successful!{" "}
-              <a
-                href={`https://${deploymentUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-purple-400 hover:text-purple-300 underline"
-              >
-                {deploymentUrl}
-              </a>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 text-red-300 text-center rounded-lg">
-              ❌ {error}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Footer />
-    </div>
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import JSZip from "jszip";
+import {
+  Download,
+  PackageCheck,
+  ArrowLeft,
+  ArrowRight,
+  FileCode2,
+  Check,
+} from "lucide-react";
+import PageIntro from "../components/PageIntro";
+import Layout from "../components/Layout";
+import { readProject } from "../lib/project";
+export default function Deploy() {
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const [method, setMethod] = useState("upload");
+  const { state } = useLocation();
+  const project = state?.project || readProject();
+  const hasLockfile = Boolean(
+    project?.files["package-lock.json"] || project?.files["/package-lock.json"],
   );
-};
-
-export default Deploy;
+  async function download() {
+    setBusy(true);
+    setError("");
+    try {
+      const zip = new JSZip();
+      for (const [path, file] of Object.entries(project.files)) {
+        if (path.includes("..") || path.includes("\\"))
+          throw new Error("Invalid file path");
+        zip.file(path.replace(/^\//, ""), file.code);
+      }
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(project.projectTitle || "project").replace(/[^a-z0-9-]/gi, "-").toLowerCase()}.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Layout>
+      <div className="product-page">
+        <section className="landing-container export-page">
+          <Link to="/builder" className="subtle-link">
+            <ArrowLeft size={14} />
+            Back to editor
+          </Link>
+          <PageIntro
+            eyebrow="YOUR NEXT CHAPTER"
+            title={
+              <>
+                Made by you.
+                <br />
+                <span>Ready to go further.</span>
+              </>
+            }
+            description="Take your complete source code with you. Build, publish, and make a home for your website on your own terms."
+          />
+          <div className="export-grid">
+            <div className="export-package">
+              <div className="package-art">
+                <PackageCheck size={58} strokeWidth={1} />
+                <span>YOURS TO CREATE. YOURS TO KEEP.</span>
+              </div>
+              <div className="package-details">
+                <span className="section-number">
+                  COMPLETE PROJECT / ZIP ARCHIVE
+                </span>
+                <h2>{project?.projectTitle || "Your next project"}</h2>
+                <p>
+                  {project
+                    ? `${Object.keys(project.files).length} source files, ready for your next step.`
+                    : "Create a project to prepare your first export."}
+                </p>
+                {project && (
+                  <div className="export-file-list">
+                    {Object.keys(project.files)
+                      .slice(0, 4)
+                      .map((path) => (
+                        <span key={path}>
+                          <FileCode2 size={14} />
+                          {path.replace(/^\//, "")}
+                        </span>
+                      ))}
+                    {Object.keys(project.files).length > 4 && (
+                      <small>
+                        + {Object.keys(project.files).length - 4} more files
+                      </small>
+                    )}
+                  </div>
+                )}
+                {project ? (
+                  <button
+                    onClick={download}
+                    disabled={busy}
+                    className="landing-button"
+                  >
+                    <Download size={16} />
+                    {busy ? "Preparing…" : "Download source"}
+                  </button>
+                ) : (
+                  <Link to="/ai" className="landing-button">
+                    Create a project <ArrowRight size={16} />
+                  </Link>
+                )}
+                {error && (
+                  <p className="error" role="alert">
+                    {error}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="launch-guide">
+              <p className="landing-kicker">A CLEAR PATH TO PUBLISHED</p>
+              <h2>
+                Three steps.
+                <br />A world of possibility.
+              </h2>
+              <div className="launch-step">
+                <span>01</span>
+                <div>
+                  <h3>Make it local.</h3>
+                  <p>
+                    Extract your archive and open a terminal in the project
+                    folder.
+                  </p>
+                  <pre>
+                    <code>
+                      {hasLockfile ? "npm ci" : "npm install"}
+                      {"\n"}npm run dev
+                    </code>
+                  </pre>
+                </div>
+              </div>
+              <div className="launch-step">
+                <span>02</span>
+                <div>
+                  <h3>Get ready for the world.</h3>
+                  <p>
+                    Review your website, check the details, and create a
+                    production build. The in-app preview does not verify this
+                    build; resolve any terminal errors before publishing.
+                  </p>
+                  <pre>
+                    <code>npm run build</code>
+                  </pre>
+                </div>
+              </div>
+              <div className="launch-step">
+                <span>03</span>
+                <div>
+                  <h3>Publish with Cloudflare Pages.</h3>
+                  <p>
+                    Start with the free plan and a <code>pages.dev</code>{" "}
+                    address. Hosting quotas apply; a custom domain is optional.
+                  </p>
+                  <div
+                    className="hosting-options"
+                    role="group"
+                    aria-label="Deployment method"
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={method === "upload"}
+                      onClick={() => setMethod("upload")}
+                    >
+                      Upload built files
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={method === "git"}
+                      onClick={() => setMethod("git")}
+                    >
+                      Connect Git
+                    </button>
+                  </div>
+                  {method === "upload" ? (
+                    <>
+                      <p>
+                        In your Cloudflare dashboard, create a Pages project
+                        using Direct Upload. Upload the generated{" "}
+                        <code>dist</code> folder, not the source ZIP, then open
+                        the published URL.
+                      </p>
+                      <p>
+                        A Direct Upload project cannot later switch to Git
+                        integration; create a separate project if you change
+                        methods.
+                      </p>
+                      <a
+                        href="https://developers.cloudflare.com/pages/get-started/direct-upload/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Follow the upload guide ↗
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        Push the extracted source to your own GitHub or GitLab
+                        repository, then connect it in Cloudflare Pages. Set the
+                        build command to <code>npm run build</code> and output
+                        directory to <code>dist</code>. Review the build logs
+                        and published URL.
+                      </p>
+                      <a
+                        href="https://developers.cloudflare.com/pages/get-started/git-integration/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Follow the Git deployment guide ↗
+                      </a>
+                    </>
+                  )}
+                  <span className="launch-note">
+                    <Check size={14} />
+                    Guided setup · publishing happens in your hosting account.
+                  </span>
+                </div>
+              </div>
+              <p className="field-hint">
+                Working with an older CRA project? Use <code>npm start</code>{" "}
+                for development and publish the <code>build</code> folder.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </Layout>
+  );
+}

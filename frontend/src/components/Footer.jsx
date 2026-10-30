@@ -1,39 +1,37 @@
-import React from "react";
-
-const Footer = () => {
+import { Link } from "react-router-dom";
+import { Layers } from "lucide-react";
+export default function Footer() {
   return (
-    <footer className="relative border-t border-purple-500/20 py-6 px-4">
-      <div className="max-w-7xl mx-auto container flex flex-col md:flex-row justify-between items-center text-center md:text-left space-y-4 md:space-y-0">
-        <div
-          className="flex items-center space-x-2 cursor-pointer"
-          onClick={() => (window.location.href = "/")}
-        >
-          <img src="/ai.png" alt="AI Logo" className="w-6 h-6" />
-          <span className="font-bold text-white">Buildfast.ai</span>
+    <footer className="site-footer">
+      <div className="landing-container">
+        <div className="footer-top">
+          <div>
+            <Link to="/" className="site-brand">
+              <Layers size={24} />
+              buildfast
+            </Link>
+            <p>A little less friction. A lot more creating.</p>
+          </div>
+          <div className="footer-links">
+            <div>
+              <strong>Make something</strong>
+              <Link to="/ai">Your workspace</Link>
+              <Link to="/features">Explore the platform</Link>
+              <Link to="/#possibilities">Find inspiration</Link>
+            </div>
+            <div>
+              <strong>Keep in touch</strong>
+              <Link to="/contact">Contact us</Link>
+              <Link to="/login">Sign in</Link>
+              <Link to="/register">Create an account</Link>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6">
-          <a
-            href="https://stackblitz.com/terms-of-service"
-            className="text-purple-200 hover:text-white transition-colors"
-          >
-            Terms
-          </a>
-          <a
-            href="https://stackblitz.com/privacy-policy"
-            className="text-purple-200 hover:text-white transition-colors"
-          >
-            Privacy
-          </a>
-          <a
-            href="/contact"
-            className="text-purple-200 hover:text-white transition-colors"
-          >
-            Contact
-          </a>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} Buildfast</span>
+          <span>Your ideas. Your code. Your next chapter.</span>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

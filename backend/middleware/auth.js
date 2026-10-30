@@ -1,28 +1,15 @@
 import jwt from "jsonwebtoken";
-
-export const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
-
+export function authenticate(req, res, next) {
+  const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token) throw new Error();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ["HS256"],
+    });
+    if (!/^[a-f0-9]{24}$/i.test(decoded.id)) throw new Error();
     req.user = decoded.id;
     next();
-  } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+  } catch {
+    res.status(401).json({ error: "Please sign in again" });
   }
-};
-
-export const validateRefreshToken = (req, res, next) => {
-  const refreshToken = req.body.refreshToken;
-  if (!refreshToken)
-    return res.status(401).json({ error: "Refresh token required" });
-
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    req.user = decoded.id;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: "Invalid refresh token" });
-  }
-};
+}

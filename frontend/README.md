@@ -1,8 +1,7 @@
-# React + Vite
+# Buildfast frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 18, Vite, Tailwind CSS 4, React Router, and Sandpack. See the [root README](../README.md) for setup, Docker, integration configuration, and verification commands.
 
-Currently, two official plugins are available:
+`npm run dev` starts Vite with hot reload. `/api` is proxied to the API during development. `npm run build` produces static files in `dist`. `npm run lint` checks the source.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+UI routes: `/`, `/features`, `/contact`, `/login`, `/register`; authenticated routes: `/ai`, `/builder`, `/deploy` (source export).

@@ -1,0 +1,28 @@
+name: Checks
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1})'"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      MIGRATION_TEST_URI: mongodb://localhost:27017
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm run install:all
+      - run: npm run check
+      - run: cp .env.example .env && docker compose config --quiet
+      - run: docker build -t buildfast-api ./backend
+      - run: docker build --target production -t buildfast-ui ./frontend
